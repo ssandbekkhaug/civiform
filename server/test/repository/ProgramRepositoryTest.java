@@ -258,10 +258,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 .build());
 
     assertThat(
-            paginationResult.getPageContents().stream()
-                .map(a -> a.getSubmitterEmail().orElse(""))
-                .collect(ImmutableSet.toImmutableSet()))
-        .containsExactly("bob@example.com");
+      paginationResult.getPageContents().stream()
+        .map(a -> a.getApplicant().id)
+        .collect(ImmutableSet.toImmutableSet()))
+      .containsExactly(bob.id);
     assertThat(paginationResult.getNumPages()).isEqualTo(1);
   }
 
@@ -280,7 +280,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"bob@example.com", ImmutableSet.of("bob@example.com")},
         new Object[] {"Other Person", ImmutableSet.of()},
 
-        // Case insensitive search.
+        // Case-insensitive search.
         new Object[] {"bOb dOe", ImmutableSet.of("bob@example.com")},
         new Object[] {"CHRIS@example.com", ImmutableSet.of("chris@exAMPLE.com")},
 
@@ -303,11 +303,14 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Program program = resourceCreator.insertActiveProgram("test program");
 
     Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
+    System.out.println("avaleske bob " + bob.id);
     makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
     Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
+    System.out.println("avaleske jane " + jane.id);
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
     // Note: The mixed casing on the email is intentional for tests of case insensitivity.
     Applicant chris = resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
+    System.out.println("avaleske chris " + chris.id);
     makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person");
 
     Applicant otherApplicant =
@@ -323,12 +326,15 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
                 .build());
 
-    assertThat(
-            paginationResult.getPageContents().stream()
-                .map(a -> a.getSubmitterEmail().orElse(""))
-                .collect(ImmutableSet.toImmutableSet()))
+    var actualEmails = paginationResult.getPageContents().stream()
+      .map(a -> a.getApplicant().getAccount().getEmailAddress())
+      .collect(ImmutableSet.toImmutableSet());
+    System.out.println("actual emails " + actualEmails.toString());
+    System.out.println("want emails " + wantEmails.toString());
+    assertThat(actualEmails)
         .isEqualTo(wantEmails);
     assertThat(paginationResult.getNumPages()).isEqualTo(wantEmails.isEmpty() ? 0 : 1);
+//    assertThat(true).isFalse();
   }
 
   private Application makeApplicationWithName(
