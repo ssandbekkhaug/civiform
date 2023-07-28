@@ -86,7 +86,7 @@ public final class CsvExporter implements AutoCloseable {
             printer.print(dateConverter.renderDateTimeDataOnly(application.getSubmitTime()));
           }
           break;
-        case SUBMITTER_EMAIL_OPAQUE:
+        case TI_EMAIL_OPAQUE:
           if (secret.isBlank()) {
             throw new RuntimeException("Secret not present, but opaque ID requested.");
           }
@@ -96,8 +96,21 @@ public final class CsvExporter implements AutoCloseable {
                   .map(email -> opaqueIdentifier(secret, email))
                   .orElse(EMPTY_VALUE));
           break;
-        case SUBMITTER_EMAIL:
-          printer.print(application.getSubmitterEmail().orElse("Applicant"));
+        case TI_EMAIL:
+          printer.print(application.getSubmitterEmail().orElse(EMPTY_VALUE));
+          break;
+        case SUBMITTER_TYPE:
+          // The field on the application is called "submitter_email", but it's only ever used to
+          // store
+          // the TI's email, never the applicant's.
+          // TODO(): Rename the `submitter_email` database field to `ti_email` and move the
+          // submitter_type logic upstream.
+          printer.print(
+              application.getSubmitterEmail().isPresent()
+                  // Should this be different in the CSV than the json? or should it be the
+                  // capitalized enum name?
+                  ? "Trusted Intermediary"
+                  : "Applicant");
           break;
         case PROGRAM:
           printer.print(application.getProgram().getProgramDefinition().adminName());
@@ -166,6 +179,8 @@ public final class CsvExporter implements AutoCloseable {
   }
 
   private static String opaqueIdentifier(String secret, String value) {
+    System.out.println("avaleske");
+    System.out.println(secret);
     return Hashing.sha256()
         .newHasher()
         .putString(secret, StandardCharsets.UTF_8)
