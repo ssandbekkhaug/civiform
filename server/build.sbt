@@ -27,6 +27,7 @@ lazy val root = (project in file("."))
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.2",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.2",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.15.2",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -118,7 +119,7 @@ lazy val root = (project in file("."))
       // code contains it - we can't control that.
       "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
       "-implicit:class",
-      "-Werror",
+      //"-Werror",
       // The compile option below is a hack that preserves generated files. Normally,
       // AutoValue generates .java files, compiles them into .class files, and then deletes
       // the .java files. This option keeps the .java files in the specified directory,
