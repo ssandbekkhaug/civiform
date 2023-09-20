@@ -367,6 +367,7 @@ public final class QuestionEditView extends BaseHtmlView {
     if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
+    questionSettingsContentBuilder.add(buildUniversalQuestion(true));
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
       formTag
@@ -375,6 +376,35 @@ public final class QuestionEditView extends BaseHtmlView {
     }
 
     return formTag;
+  }
+
+  private DomContent buildUniversalQuestion(Boolean checked) {
+    return fieldset()
+        .with(
+            legend("Universal question")
+                .with(ViewUtils.requiredQuestionIndicator())
+                .withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                .with(
+                    span(
+                        "Blurb about what Universal Questions are. Learn more about how this works"
+                            + " in the "),
+                    new LinkElement()
+                        .setHref(
+                            "https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#universal-questions")
+                        .setText("documentation")
+                        .opensInNewTab()
+                        .asAnchorText(),
+                    span(".")),
+            FieldWithLabel.checkbox()
+                .setAriaRequired(true)
+                .setFieldName("questionUniversal")
+                .setLabelText("Universal")
+                .setChecked(checked)
+                // Checkboxes either return their value when checked, or don't have a value when not
+                // checked
+                .setValue("true")
+                .getCheckboxTag());
   }
 
   private DomContent buildDemographicFields(QuestionForm questionForm, boolean submittable) {
