@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import models.Question;
 import models.QuestionTag;
@@ -27,6 +28,7 @@ public abstract class QuestionForm {
   private Optional<String> questionExportState;
   private QuestionDefinition qd;
   private String redirectUrl;
+  private Boolean questionUniversal;
 
   protected QuestionForm() {
     questionName = "";
@@ -35,6 +37,7 @@ public abstract class QuestionForm {
     questionText = "";
     questionHelpText = "";
     questionExportState = Optional.of("");
+    questionUniversal = false;
     redirectUrl = "";
   }
 
@@ -57,6 +60,8 @@ public abstract class QuestionForm {
     } catch (TranslationNotFoundException e) {
       questionHelpText = "Missing Text";
     }
+
+    questionUniversal = qd.isUniversal();
   }
 
   public final String getQuestionName() {
@@ -136,6 +141,14 @@ public abstract class QuestionForm {
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
     return builder;
+  }
+
+  public final Boolean getUniversal() {
+    return this.questionUniversal;
+  }
+
+  public final void setQuestionUniversal(Boolean universal) {
+    this.questionUniversal = universal;
   }
 
   public final void setQuestionExportState(String questionExportState) {
