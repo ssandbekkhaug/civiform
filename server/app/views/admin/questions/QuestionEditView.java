@@ -367,7 +367,7 @@ public final class QuestionEditView extends BaseHtmlView {
     if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
-    questionSettingsContentBuilder.add(buildUniversalQuestion(true));
+    questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm.getUniversal()));
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
       formTag
