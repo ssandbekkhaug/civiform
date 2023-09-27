@@ -158,7 +158,9 @@ public final class QuestionsListView extends BaseHtmlView {
                       .build();
                 })
             .sorted(
-                Comparator.<QuestionCardData, Instant>comparing(
+                Comparator.<QuestionCardData, Boolean>comparing(
+                        card -> getDisplayQuestion(card).isUniversal())
+                    .thenComparing(
                         card ->
                             getDisplayQuestion(card).getLastModifiedTime().orElse(Instant.EPOCH))
                     .reversed()
@@ -272,6 +274,20 @@ public final class QuestionsListView extends BaseHtmlView {
                 span("Admin note: ").withClasses("font-bold"),
                 span(latestDefinition.getDescription()));
 
+    DivTag universalBadge =
+        div()
+            .withClasses(
+                "border",
+                "rounded-lg",
+                "px-2",
+                "py-1",
+                "mt-4",
+                "gap-x-2",
+                "inline-block",
+                "w-auto",
+                "bg-yellow-400")
+            .with(span("Universal Question").withClasses("font-bold"));
+
     DivTag rowWithAdminNote =
         div()
             .withClasses(
@@ -283,6 +299,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 "rounded-lg",
                 "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
+            .condWith(getDisplayQuestion(cardData).isUniversal(), universalBadge)
             .with(row)
             .with(adminNote)
             // Add data attributes used for sorting.
@@ -293,6 +310,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .withData(
                 QuestionSortOption.NUM_PROGRAMS.getDataAttribute(),
                 Integer.toString(cardData.referencingPrograms().getTotalNumReferencingPrograms()));
+
     return Pair.of(rowWithAdminNote, modals.build());
   }
 
