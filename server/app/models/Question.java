@@ -148,7 +148,8 @@ public class Question extends BaseModel {
             .setDescription(description)
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates)
-            .setLastModifiedTime(Optional.ofNullable(lastModifiedTime));
+            .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
+            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL));
 
     setEnumeratorEntityType(builder);
 

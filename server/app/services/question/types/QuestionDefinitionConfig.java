@@ -36,6 +36,8 @@ public abstract class QuestionDefinitionConfig {
 
   abstract Optional<Instant> lastModifiedTime();
 
+  abstract Boolean universal();
+
   /** Used to create a new {@link QuestionDefinitionConfig} */
   public static RequiredName builder() {
     return new AutoValue_QuestionDefinitionConfig.Builder();
@@ -70,6 +72,8 @@ public abstract class QuestionDefinitionConfig {
     public abstract Builder setLastModifiedTime(Instant lastModifiedTime);
 
     public abstract Builder setLastModifiedTime(Optional<Instant> lastModifiedTime);
+
+    public abstract Builder setUniversal(Boolean universal);
 
     public abstract Builder setValidationPredicates(
         QuestionDefinition.ValidationPredicates validationPredicates);

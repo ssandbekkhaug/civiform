@@ -73,6 +73,7 @@ public final class DatabaseSeedTask {
                       "Nombre (nombre y la inicial del apellido está bien)",
                       Lang.forCode("zh-TW").toLocale(),
                       "姓名（名字和姓氏第一個字母便可）")))
+          .setUniversal(false)
           .unsafeBuild();
   public static final QuestionDefinition CANONICAL_DOB_QUESTION =
       new QuestionDefinitionBuilder()
@@ -83,6 +84,7 @@ public final class DatabaseSeedTask {
               LocalizedStrings.of(
                   Lang.forCode("en-US").toLocale(),
                   "Please enter your date of birth in the format mm/dd/yyyy"))
+          .setUniversal(false)
           .unsafeBuild();
 
   private static final ImmutableList<QuestionDefinition> CANONICAL_QUESTIONS =

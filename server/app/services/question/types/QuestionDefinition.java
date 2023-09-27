@@ -61,6 +61,11 @@ public abstract class QuestionDefinition {
     return config.id().getAsLong();
   }
 
+  /** Get if the UNIVERSAL QuestionTag is set for this question. */
+  public final boolean isUniversal() {
+    return config.universal();
+  }
+
   /**
    * Get the name of this question.
    *

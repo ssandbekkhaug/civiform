@@ -87,7 +87,8 @@ public final class ApplicantQuestionRendererFactory {
             .setName("")
             .setDescription("")
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
-            .setQuestionType(questionType);
+            .setQuestionType(questionType)
+            .setUniversal(false);
 
     if (questionType.isMultiOptionType()) {
       builder.setQuestionOptions(

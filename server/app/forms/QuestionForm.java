@@ -132,6 +132,10 @@ public abstract class QuestionForm {
             ? LocalizedStrings.empty()
             : LocalizedStrings.of(Locale.US, questionHelpText);
 
+    // Not entirely sure if we need setUniversal here. Need
+    // to see where this function is used, and if we're always
+    // calling setUniversal on the builder.  But it shouldn't
+    // hurt to do it here, even if the value is defaulted to false.
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(getQuestionType())
@@ -139,7 +143,8 @@ public abstract class QuestionForm {
             .setDescription(questionDescription)
             .setEnumeratorId(enumeratorId)
             .setQuestionText(questionTextMap)
-            .setQuestionHelpText(questionHelpTextMap);
+            .setQuestionHelpText(questionHelpTextMap)
+            .setUniversal(questionUniversal);
     return builder;
   }
 

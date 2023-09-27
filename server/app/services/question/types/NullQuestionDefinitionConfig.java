@@ -65,6 +65,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     return Optional.empty();
   }
 
+  @Override
+  Boolean universal() {
+    return false;
+  }
+
   /** Used to create a new {@link Builder} based on an existing one. */
   public static class Builder extends QuestionDefinitionConfig.Builder {
 
@@ -117,6 +122,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     @Override
     public QuestionDefinitionConfig.Builder setLastModifiedTime(
         Optional<Instant> lastModifiedTime) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setUniversal(Boolean universal) {
       return this;
     }
 
