@@ -31,6 +31,8 @@ import play.twirl.api.Content;
 import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
@@ -55,6 +57,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
   private final SettingsManifest settingsManifest;
+  private final ProgramService programService;
 
   @Inject
   public ProgramIndexView(
@@ -62,12 +65,14 @@ public final class ProgramIndexView extends BaseHtmlView {
       Config config,
       SettingsManifest settingsManifest,
       TranslationLocales translationLocales,
-      ProgramCardFactory programCardFactory) {
+      ProgramCardFactory programCardFactory,
+      ProgramService programService) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.programService = checkNotNull(programService);
   }
 
   public Content render(
@@ -277,9 +282,20 @@ public final class ProgramIndexView extends BaseHtmlView {
       default:
         break;
     }
+    boolean containsAllUniversal = true;
+    try {
+      containsAllUniversal = programService.containsAllUniversalQuestions(program.id());
+    } catch (ProgramNotFoundException e) {
+      containsAllUniversal = true;
+    }
     return li().with(
             span(program.localizedName().getDefault()).withClasses("font-medium"),
-            span(" - " + visibilityText + " "),
+            span(" - " + visibilityText + " "))
+        .condWith(
+            !containsAllUniversal,
+            span(" - "),
+            span("Does not contain all universal questions ").withClasses("text-red-600"))
+        .with(
             new LinkElement()
                 .setText("Edit")
                 .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
