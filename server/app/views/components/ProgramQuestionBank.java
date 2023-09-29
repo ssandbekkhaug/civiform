@@ -7,6 +7,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -146,8 +147,8 @@ public final class ProgramQuestionBank {
     ImmutableList<QuestionDefinition> questions =
         filterQuestions()
             .sorted(
-                Comparator.<QuestionDefinition, Instant>comparing(
-                        qdef -> qdef.getLastModifiedTime().orElse(Instant.EPOCH))
+                Comparator.<QuestionDefinition, Boolean>comparing(qdef -> qdef.isUniversal())
+                    .thenComparing(qdef -> qdef.getLastModifiedTime().orElse(Instant.EPOCH))
                     .reversed()
                     .thenComparing(qdef -> qdef.getName().toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
@@ -200,6 +201,20 @@ public final class ProgramQuestionBank {
             ? p()
             : p(String.format("Admin note: %s", definition.getDescription()))
                 .withClasses("mt-1", "text-sm");
+    DivTag universalBadge =
+        div()
+            .withClasses(
+                "border",
+                "rounded-lg",
+                "px-2",
+                "py-1",
+                "mt-4",
+                "gap-x-2",
+                "inline-block",
+                "w-auto",
+                "bg-yellow-400")
+            .with(span("Universal Question").withClasses("font-bold"));
+
     DivTag content =
         div()
             .withClasses("ml-4", "grow")
@@ -209,7 +224,8 @@ public final class ProgramQuestionBank {
                 p(questionHelpText).withClasses("mt-1", "text-sm", "line-clamp-2"),
                 p(String.format("Admin ID: %s", definition.getName()))
                     .withClasses("mt-1", "text-sm"),
-                adminNote);
+                adminNote)
+            .condWith(definition.isUniversal(), universalBadge);
 
     return questionDiv.with(icon, content, addButton);
   }
