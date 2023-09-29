@@ -183,6 +183,27 @@ public final class QuestionRepository {
         .collect(ImmutableList.toImmutableList());
   }
 
+  /**
+   * Get all the latest versions of questions, either active or draft, that have the universal tag.
+   * We must filter it after we get all the questions rather than using arrayContains to handle when
+   * a new draft of a question removes the universal tag.
+   */
+  public ImmutableList<QuestionDefinition> getAllLatestUniversalQuestions() {
+    return getAllLatestQuestions().values().stream()
+        .filter(qd -> qd.isUniversal())
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  public ImmutableMap<String, QuestionDefinition> getAllLatestQuestions() {
+    return database.find(Question.class).findList().stream()
+        .map(Question::getQuestionDefinition)
+        .collect(
+            ImmutableMap.toImmutableMap(
+                QuestionDefinition::getName,
+                q -> q,
+                (q1, q2) -> q1.getId() > q2.getId() ? q1 : q2));
+  }
+
   public ImmutableMap<String, QuestionDefinition> getExistingQuestions(
       ImmutableSet<String> questionNames) {
     // We need to retrieve the latest id for each question since multiple versions of a question

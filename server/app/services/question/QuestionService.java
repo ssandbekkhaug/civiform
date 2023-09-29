@@ -418,4 +418,10 @@ public final class QuestionService {
             optionalPreviousVersion.get(), versionRepositoryProvider.get())
         .getAllQuestions();
   }
+
+  public ImmutableList<Long> getAllLatestUniversalQuestionIds() {
+    return questionRepository.getAllLatestUniversalQuestions().stream()
+        .map(qd -> qd.getId())
+        .collect(ImmutableList.toImmutableList());
+  }
 }

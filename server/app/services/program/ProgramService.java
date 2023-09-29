@@ -1541,6 +1541,27 @@ public final class ProgramService {
         programId, paginationSpecEither, filters);
   }
 
+  /**
+   * Determine if a given program includes all universal questions. If no universal questions are
+   * defined for the system, returns true.
+   *
+   * @param programId the ID of the program to check
+   * @return boolean denoting if the program contains all questions marked universal in the system.
+   * @throws ProgramNotFoundException when the programId does not correspond to a real Program.
+   */
+  public boolean containsAllUniversalQuestions(long programId) throws ProgramNotFoundException {
+    // Done synchronously since this is only used in admin-facing code.
+    Program p =
+        programRepository
+            .lookupProgram(programId)
+            .toCompletableFuture()
+            .join()
+            .orElseThrow(() -> new ProgramNotFoundException(programId));
+    ImmutableList<Long> questionIds = p.getProgramDefinition().getQuestionIdsInProgram();
+    ImmutableList<Long> universalIds = questionService.getAllLatestUniversalQuestionIds();
+    return questionIds.containsAll(universalIds);
+  }
+
   private static ImmutableSet<CiviFormError> validateBlockDefinition(
       BlockDefinition blockDefinition) {
     ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
