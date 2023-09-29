@@ -11,6 +11,7 @@ import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
@@ -677,11 +678,26 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 iffElse(malformedQuestionDefinition, "border-red-500", "border-gray-200"),
                 "px-4",
                 "py-2",
-                "flex",
-                "gap-4",
+                "m-4",
                 "items-center",
+                "columns-1",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
+    DivTag universalBadge =
+        div()
+            .withClasses(
+                "border",
+                "rounded-lg",
+                "px-2",
+                "py-1",
+                "mt-4",
+                "gap-x-2",
+                "inline-block",
+                "w-auto",
+                "bg-yellow-400")
+            .with(span("Universal Question").withClasses("font-bold"));
+    ret.condWith(questionDefinition.isUniversal() && !malformedQuestionDefinition, universalBadge);
 
+    DivTag row = div().withClasses("flex");
     SvgTag icon =
         Icons.questionTypeSvg(questionDefinition.getQuestionType())
             .withClasses("shrink-0", "h-12", "w-6");
@@ -724,12 +740,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
             questionDefinition,
             addressCorrectionEnabled);
 
-    ret.with(icon, content);
+    row.with(icon, content);
     // UI for editing is only added if we are viewing a draft.
     if (viewAllowsEditingProgram()) {
-      maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
-      maybeOptionalToggle.ifPresent(ret::with);
-      ret.with(
+      maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> row.with(toggle));
+      maybeOptionalToggle.ifPresent(row::with);
+      row.with(
           this.renderMoveQuestionButtonsSection(
               csrfTag,
               programDefinition.id(),
@@ -737,7 +753,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questionDefinition,
               questionIndex,
               questionsCount));
-      ret.with(
+      row.with(
           renderDeleteQuestionForm(
               csrfTag,
               programDefinition.id(),
@@ -751,14 +767,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
             addressCorrectionEnabled
                 ? "Address correction: enabled"
                 : "Address correction: disabled";
-        ret.with(renderReadOnlyLabel(label));
+        row.with(renderReadOnlyLabel(label));
       }
       if (maybeOptionalToggle.isPresent()) {
         String label = isOptional ? "optional question" : "required question";
-        ret.with(renderReadOnlyLabel(label));
+        row.with(renderReadOnlyLabel(label));
       }
     }
-    return ret;
+    return ret.with(row);
   }
 
   /**
