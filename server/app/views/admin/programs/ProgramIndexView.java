@@ -443,9 +443,19 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private ButtonTag renderPublishProgramLink(ProgramDefinition program, Http.Request request) {
     String linkDestination = routes.AdminProgramController.publishProgram(program.id()).url();
+    boolean containsAllUniversal = true;
+    try {
+      containsAllUniversal = programService.containsAllUniversalQuestions(program.toProgram().id);
+    } catch (ProgramNotFoundException e) {
+      containsAllUniversal = true;
+    }
+    String warning =
+        containsAllUniversal
+            ? ""
+            : "WARNING: This program does not contain all universal questions! ";
     String confirmationMessage =
         String.format(
-            "Are you sure you want to publish %s and all of its draft questions?",
+            warning + "Are you sure you want to publish %s and all of its draft questions?",
             program.localizedName().getDefault());
     return toLinkButtonForPost(
             makeSvgTextButton("Publish ", Icons.PUBLISH)
