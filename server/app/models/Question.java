@@ -262,6 +262,11 @@ public class Question extends BaseModel {
       EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) questionDefinition;
       enumeratorEntityType = enumerator.getEntityType();
     }
+
+    initTags();
+    if (questionDefinition.isUniversal()){
+      addTag(QuestionTag.UNIVERSAL);
+    }
     return this;
   }
 

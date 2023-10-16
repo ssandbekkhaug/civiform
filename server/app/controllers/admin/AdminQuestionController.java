@@ -171,7 +171,6 @@ public final class AdminQuestionController extends CiviFormController {
     try {
       QuestionDefinition qd = result.getResult();
       service.setExportState(qd, questionForm.getQuestionExportStateTag());
-      service.setUniversal(qd, questionForm.getUniversal());
     } catch (InvalidUpdateException | QuestionNotFoundException e) {
       return badRequest(e.toString());
     }
@@ -286,7 +285,6 @@ public final class AdminQuestionController extends CiviFormController {
       questionDefinition =
           getBuilder(maybeExisting, questionForm)
               .setId(id)
-              .setUniversal(questionForm.getUniversal())
               .build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
@@ -314,7 +312,6 @@ public final class AdminQuestionController extends CiviFormController {
     try {
       QuestionDefinition qd = errorAndUpdatedQuestionDefinition.getResult();
       service.setExportState(qd, questionForm.getQuestionExportStateTag());
-      service.setUniversal(qd, questionForm.getUniversal());
     } catch (InvalidUpdateException | QuestionNotFoundException e) {
       return badRequest(e.toString());
     }

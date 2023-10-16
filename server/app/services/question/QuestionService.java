@@ -294,22 +294,6 @@ public final class QuestionService {
     question.save();
   }
 
-  public void setUniversal(QuestionDefinition questionDefinition, boolean universal)
-      throws QuestionNotFoundException, InvalidUpdateException {
-    Optional<Question> questionMaybe =
-        questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
-    if (questionMaybe.isEmpty()) {
-      throw new QuestionNotFoundException(questionDefinition.getId());
-    }
-    Question question = questionMaybe.get();
-    if (universal) {
-      question.addTag(QuestionTag.UNIVERSAL);
-    } else {
-      question.removeTag(QuestionTag.UNIVERSAL);
-    }
-    question.save();
-  }
-
   /**
    * Check for conflicts with other questions. This is to be only used with new questions because
    * questions being updated will likely conflict with themselves, and new versions of previous
