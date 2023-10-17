@@ -27,6 +27,7 @@ POST    /admin/programs/publish                                 controllers.admi
 POST    /admin/programs/:programId/publish                      controllers.admin.AdminProgramController.publishProgram(request: Request, programId: Long)
 POST    /admin/programs/:programId                              controllers.admin.AdminProgramController.update(request: Request, programId: Long)
 POST    /admin/programs/:programId/setEligibilityIsGating       controllers.admin.AdminProgramController.setEligibilityIsGating(request: Request, programId: Long)
+POST    /admin/programs/:programId/archive                      controllers.admin.AdminProgramController.archive(request: Request, programId: Long)
 
 # Routes for a CiviForm admin to manage program admins for a given program.
 GET     /admin/programs/:programId/admins/edit    controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)

@@ -26,6 +26,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.TranslationLocales;
@@ -89,6 +92,18 @@ public final class ProgramIndexView extends BaseHtmlView {
     Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
 
     Modal demographicsCsvModal = renderDemographicsCsvModal();
+
+    List<Pair<ProgramCardFactory.ProgramCardData, Optional<Modal>>> programCardData =
+      programs.getProgramNames().stream()
+        .map(
+          name ->
+            this.buildProgramCardData(
+              programs.getActiveProgramDefinition(name),
+              programs.getDraftProgramDefinition(name),
+              request,
+              profile))
+        .collect(Collectors.toList());
+
     DivTag contentDiv =
         div()
             .withClasses("px-4")
@@ -115,14 +130,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withClass("mt-6")
                     .with(
                         each(
-                            programs.getProgramNames().stream()
-                                .map(
-                                    name ->
-                                        this.buildProgramCardData(
-                                            programs.getActiveProgramDefinition(name),
-                                            programs.getDraftProgramDefinition(name),
-                                            request,
-                                            profile))
+                            programCardData.stream()
+                              .map(Pair::getLeft)
                                 .sorted(
                                     ProgramCardFactory
                                         .programTypeThenLastModifiedThenNameComparator())
@@ -137,6 +146,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             .addMainContent(contentDiv)
             .addModals(demographicsCsvModal);
     maybePublishModal.ifPresent(htmlBundle::addModals);
+    programCardData.stream().map(Pair::getRight).forEach(modalMaybe ->
+    modalMaybe.ifPresent(htmlBundle::addModals));
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
@@ -306,14 +317,16 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectElement(button, link);
   }
 
-  private ProgramCardFactory.ProgramCardData buildProgramCardData(
+  private Pair<ProgramCardFactory.ProgramCardData, Optional<Modal>> buildProgramCardData(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
+    Optional<Modal> maybeModal = Optional.empty();
     if (draftProgram.isPresent()) {
+
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
       draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
@@ -329,8 +342,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeSettingsLink.isPresent()) {
         draftRowExtraActions.add(maybeSettingsLink.get());
       }
+      Pair<ButtonTag, Optional<Modal>> archiveProgramInfo = renderArchiveProgramLink(draftProgram.get(), request);
       // TODO: Check feature flag
-      draftRowExtraActions.add(renderArchiveProgramLink(draftProgram.get(), request));
+      draftRowExtraActions.add(archiveProgramInfo.getLeft());
+      maybeModal = archiveProgramInfo.getRight();
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
@@ -351,7 +366,10 @@ public final class ProgramIndexView extends BaseHtmlView {
         activeRowExtraActions.add(
             renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
-        activeRowExtraActions.add(renderArchiveProgramLink(activeProgram.get(), request));
+        Pair<ButtonTag, Optional<Modal>> archiveProgramInfo = renderArchiveProgramLink(activeProgram.get(), request);
+        // TODO: Check feature flag
+        activeRowExtraActions.add(archiveProgramInfo.getLeft());
+        maybeModal = archiveProgramInfo.getRight();
       }
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
       activeRowActions.add(renderShareLink(activeProgram.get()));
@@ -364,10 +382,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .build());
     }
 
-    return ProgramCardFactory.ProgramCardData.builder()
+    return Pair.of(
+      ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(activeRow)
         .setDraftProgram(draftRow)
-        .build();
+        .build(),
+      maybeModal);
   }
 
   ButtonTag renderShareLink(ProgramDefinition program) {
@@ -509,22 +529,24 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of(asRedirectElement(button, linkDestination));
   }
 
-  private ButtonTag renderArchiveProgramLink(
+  private Pair<ButtonTag, Optional<Modal>> renderArchiveProgramLink(
     ProgramDefinition program,
     Http.Request request) {
 
     request.id();
-    // TODO: Create a modal
 
-    Optional<Modal> modal = makeArchiveConfirmationModel(program.adminName());
+    routes.AdminProgramController.archive(program.id()).url();
+
+    Optional<Modal> modal = makeArchiveConfirmationModal(program.adminName());
     ButtonTag button =
       makeSvgTextButton("Archive", Icons.ARCHIVE)
         .withId(modal.get().getTriggerButtonId())
         .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
+    return Pair.of(button, modal);
+
+
 
     /*
-    Link
-    String linkDestination = routes.AdminProgramController.archive(program.id()).url();
     ButtonTag button =
       toLinkButtonForPost(
         makeSvgTextButton("Archive", Icons.ARCHIVE)
@@ -542,10 +564,10 @@ public final class ProgramIndexView extends BaseHtmlView {
         .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
 
      */
-    return button;
+    //return button;
   }
 
-  private Optional<Modal> makeArchiveConfirmationModel(String programTitle) {
+  private Optional<Modal> makeArchiveConfirmationModal(String programTitle) {
     DivTag content = div().withClasses("flex-row", "space-y-6")
       .with(p("Some fake text here"));
     return Optional.of(
