@@ -28,6 +28,7 @@ import models.Account;
 import models.Application;
 import models.DisplayMode;
 import models.Program;
+import models.ProgramStatus;
 import models.Version;
 import modules.MainModule;
 import play.libs.F;
@@ -47,6 +48,7 @@ import services.ProgramBlockValidationFactory;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
@@ -1676,5 +1678,31 @@ public final class ProgramService {
             .collect(ImmutableList.toImmutableList());
 
     return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
+  }
+
+  /** TODO */
+  public void archiveProgram(Long id) throws InvalidUpdateException, ProgramNotFoundException {
+    Optional<Program> programMaybe =
+      programRepository.lookupProgram(id).toCompletableFuture().join();
+    if (programMaybe.isEmpty()) {
+      throw new ProgramNotFoundException(id);
+    }
+    Program program = programMaybe.get();
+    Optional<ProgramStatus> currentStatus = program.getProgramDefinition().programStatus();
+    if (currentStatus.isPresent() && currentStatus.get().equals(ProgramStatus.ARCHIVED)) {
+      throw new InvalidUpdateException("Program already archived"); // TODO: Protect in UI also
+    }
+
+    Program updatedProgram =
+      program.getProgramDefinition().toBuilder()
+        // TODO: Need to add another field to the Program Definition
+        //  .setStatusDefinitions(StatusDefinitions.Status.)
+        .setProgramStatus(ProgramStatus.ARCHIVED)
+        .build()
+        .toProgram();
+
+    programRepository.updateProgramSync(updatedProgram);
+
+    // TODO: Check if there are any submitted applications?
   }
 }

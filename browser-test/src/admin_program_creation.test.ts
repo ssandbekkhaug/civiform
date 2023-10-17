@@ -373,7 +373,7 @@ describe('program creation', () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    await adminQuestions.addTextQuestion({
+    await adminQuestion s.addTextQuestion({
       questionName: 'q-f',
       questionText: 'first question',
     })

@@ -28,6 +28,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.question.exceptions.InvalidUpdateException;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
@@ -296,5 +297,21 @@ public final class AdminProgramController extends CiviFormController {
     }
 
     return redirect(controllers.admin.routes.AdminProgramController.editProgramSettings(programId));
+  }
+
+  /**
+   * POST endpoint for archiving a program so it will no longer accept applications and no longer be
+   * visible to applicants in any way.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result archive(Request request, Long id) {
+    try {
+      programService.archiveProgram(id);
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", id));
+    } catch (InvalidUpdateException e) {
+      return badRequest("Failed to archive question.");
+    }
+    return redirect(controllers.admin.routes.AdminProgramController.index());
   }
 }

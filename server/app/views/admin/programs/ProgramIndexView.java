@@ -329,6 +329,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeSettingsLink.isPresent()) {
         draftRowExtraActions.add(maybeSettingsLink.get());
       }
+      // TODO: Check feature flag
+      draftRowExtraActions.add(renderArchiveProgramLink(draftProgram.get(), request));
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
@@ -349,6 +351,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         activeRowExtraActions.add(
             renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
+        activeRowExtraActions.add(renderArchiveProgramLink(activeProgram.get(), request));
       }
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
       activeRowActions.add(renderShareLink(activeProgram.get()));
@@ -504,5 +507,53 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withId("edit-settings-link-" + program.id())
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return Optional.of(asRedirectElement(button, linkDestination));
+  }
+
+  private ButtonTag renderArchiveProgramLink(
+    ProgramDefinition program,
+    Http.Request request) {
+
+    request.id();
+    // TODO: Create a modal
+
+    Optional<Modal> modal = makeArchiveConfirmationModel(program.adminName());
+    ButtonTag button =
+      makeSvgTextButton("Archive", Icons.ARCHIVE)
+        .withId(modal.get().getTriggerButtonId())
+        .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
+
+    /*
+    Link
+    String linkDestination = routes.AdminProgramController.archive(program.id()).url();
+    ButtonTag button =
+      toLinkButtonForPost(
+        makeSvgTextButton("Archive", Icons.ARCHIVE)
+          .withId("archive-program-link-" + program.id())
+          .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
+        linkDestination,
+        request
+      );
+
+     */
+    /*
+    ButtonTag button =
+      makeSvgTextButton("Archive", Icons.ARCHIVE)
+        .withId("archive-program-link-" + program.id())
+        .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
+
+     */
+    return button;
+  }
+
+  private Optional<Modal> makeArchiveConfirmationModel(String programTitle) {
+    DivTag content = div().withClasses("flex-row", "space-y-6")
+      .with(p("Some fake text here"));
+    return Optional.of(
+      Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setContent(content)
+        .setModalTitle(String.format("Are you sure you want to archive %s?", programTitle))
+        .setWidth(Modal.Width.HALF)
+        .build());
   }
 }

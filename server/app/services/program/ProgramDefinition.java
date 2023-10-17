@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import models.DisplayMode;
 import models.Program;
+import models.ProgramStatus;
 import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -59,6 +60,9 @@ public abstract class ProgramDefinition {
 
   /** The program's display mode. */
   public abstract DisplayMode displayMode();
+
+  /** TODO */
+  public abstract Optional<ProgramStatus> programStatus();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
@@ -719,6 +723,8 @@ public abstract class ProgramDefinition {
     public abstract Builder setExternalLink(String externalLink);
 
     public abstract Builder setDisplayMode(DisplayMode displayMode);
+
+    public abstract Builder setProgramStatus(ProgramStatus programStatus);
 
     public abstract Builder setAdminDescription(String adminDescription);
 
