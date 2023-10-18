@@ -130,6 +130,12 @@ public final class ProgramService {
     return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsynced(versionRepository);
   }
 
+  public List<String> getTombstonedProgramNames() {
+    return getAllProgramNames().stream()
+      .filter(programName -> versionRepository.getActiveVersion().programIsTombstoned(programName))
+      .collect(Collectors.toList());
+  }
+
   /*
    * Looks at the most recent version of each program and returns the program marked as the
    * common intake form if it exists. The most recent version may be in the draft or active stage.
@@ -1682,11 +1688,32 @@ public final class ProgramService {
 
   /** TODO */
   public void archiveProgram(Long id) throws InvalidUpdateException, ProgramNotFoundException {
+    System.out.println("Caitlin archive program start");
     Optional<Program> programMaybe =
       programRepository.lookupProgram(id).toCompletableFuture().join();
     if (programMaybe.isEmpty()) {
+      System.out.println("Caitlin program not found");
       throw new ProgramNotFoundException(id);
     }
+
+    // TODO: Do I need to make a draft first?
+    Program draftProgram = programRepository.createOrUpdateDraft(programMaybe.get());
+    Version draftVersion = versionRepository.getDraftVersionOrCreate();
+    boolean wasTombstoned = versionRepository.addTombstoneForProgramInVersion(draftProgram, draftVersion);
+    if (!wasTombstoned) {
+      throw new InvalidUpdateException("Already tombstoned.");
+    }
+    draftVersion.save();
+    programRepository.updateProgramSync(draftProgram);
+
+    /*
+    versionRepository
+      .getProgramByNameForVersion(
+        programMaybe.get().getProgramDefinition().adminName(),
+        versionRepository.getDraftVersionOrCreate())
+
+     */
+    /*
     Program program = programMaybe.get();
     Optional<ProgramStatus> currentStatus = program.getProgramDefinition().programStatus();
     if (currentStatus.isPresent() && currentStatus.get().equals(ProgramStatus.ARCHIVED)) {
@@ -1702,6 +1729,8 @@ public final class ProgramService {
         .toProgram();
 
     programRepository.updateProgramSync(updatedProgram);
+
+     */
 
     // TODO: Check if there are any submitted applications?
   }

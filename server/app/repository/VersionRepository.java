@@ -389,6 +389,18 @@ public final class VersionRepository {
     return version.addTombstoneForQuestion(name);
   }
 
+  public boolean addTombstoneForProgramInVersion(Program program, Version version)
+  throws ProgramNotFoundException {
+    System.out.println("Caitlin trying to add tombstone");
+    String name = program.getProgramDefinition().adminName();
+    if (!getProgramNamesForVersion(version).contains(name)) {
+      System.out.println("Couldn't find program inside tombstone");
+      throw new ProgramNotFoundException(program.getProgramDefinition().id());
+    }
+    // TODO: Rename method name
+    return version.addTombstoneForProgramForTest(program);
+  }
+
   /** Returns the names of all the questions for a particular version. */
   public ImmutableSet<String> getQuestionNamesForVersion(Version version) {
     return getQuestionsForVersion(version).stream()

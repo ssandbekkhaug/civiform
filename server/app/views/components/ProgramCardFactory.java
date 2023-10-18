@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
+import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
@@ -46,7 +47,7 @@ public final class ProgramCardFactory {
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
       statusDiv =
-          statusDiv.with(renderProgramRow(/* isActive = */ false, cardData.draftProgram().get()));
+          statusDiv.with(renderProgramRow(/* isActive = */ false, cardData.draftProgram().get(),  cardData.isPendingDeletion()));
     }
 
     if (cardData.activeProgram().isPresent()) {
@@ -55,7 +56,8 @@ public final class ProgramCardFactory {
               renderProgramRow(
                   /* isActive = */ true,
                   cardData.activeProgram().get(),
-                  cardData.draftProgram().isPresent() ? "border-t" : ""));
+                cardData.isPendingDeletion(),
+                cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
     DivTag titleAndStatus =
@@ -102,7 +104,7 @@ public final class ProgramCardFactory {
   }
 
   private DivTag renderProgramRow(
-      boolean isActive, ProgramCardData.ProgramRow programRow, String... extraStyles) {
+      boolean isActive, ProgramCardData.ProgramRow programRow, boolean isPendingDeletion, String... extraStyles) {
     ProgramDefinition program = programRow.program();
     String updatedPrefix = "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
@@ -123,9 +125,12 @@ public final class ProgramCardFactory {
                 "h-12",
                 programRow.extraRowActions().size() == 0 ? "invisible" : "");
 
+    ProgramDisplayType programDisplayType =
+      isActive ? ProgramDisplayType.ACTIVE : (
+        isPendingDeletion ? ProgramDisplayType.PENDING_DELETION : ProgramDisplayType.DRAFT);
     PTag badge =
         ViewUtils.makeBadge(
-            isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
+          programDisplayType,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
     return div()
@@ -204,6 +209,8 @@ public final class ProgramCardFactory {
 
     abstract Optional<ProgramRow> draftProgram();
 
+    abstract boolean isPendingDeletion();
+
     public static Builder builder() {
       return new AutoValue_ProgramCardFactory_ProgramCardData.Builder();
     }
@@ -213,6 +220,8 @@ public final class ProgramCardFactory {
       public abstract Builder setActiveProgram(Optional<ProgramRow> v);
 
       public abstract Builder setDraftProgram(Optional<ProgramRow> v);
+
+      public abstract Builder setIsPendingDeletion(boolean v);
 
       public abstract ProgramCardData build();
     }

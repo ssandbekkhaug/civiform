@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import models.Version;
 import repository.VersionRepository;
+import services.DeletionStatus;
 
 /**
  * A data class storing the current active and draft programs. For efficient querying of information
@@ -24,6 +25,7 @@ public final class ActiveAndDraftPrograms {
   private final ImmutableList<ProgramDefinition> draftPrograms;
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       versionedByName;
+  private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
 
   /**
    * Queries the existing active and draft versions and builds a snapshotted view of the program
@@ -47,7 +49,9 @@ public final class ActiveAndDraftPrograms {
 
   private ActiveAndDraftPrograms(VersionRepository repository, Optional<ProgramService> service) {
     Version active = repository.getActiveVersion();
+    System.out.println("active version = " + active.id);
     Version draft = repository.getDraftVersionOrCreate();
+    System.out.println("draft version = " + draft.id);
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
@@ -61,6 +65,9 @@ public final class ActiveAndDraftPrograms {
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
+    activeNameToProgram.forEach((name, program) ->
+     System.out.println("Active program: " + name + "  tombstoned? " + active.programIsTombstoned(name)));
+
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
         repository.getProgramsForVersion(checkNotNull(draft)).stream()
             .map(
@@ -70,6 +77,9 @@ public final class ActiveAndDraftPrograms {
                         : program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    draftNameToProgram.forEach((name, program) ->
+      System.out.println("Draft program: " + name + "  tombstoned? " + draft.programIsTombstoned(name)));
 
     this.activePrograms = activeNameToProgram.values().asList();
     this.draftPrograms = draftNameToProgram.values().asList();
@@ -83,6 +93,24 @@ public final class ActiveAndDraftPrograms {
                           Optional.ofNullable(activeNameToProgram.get(programName)),
                           Optional.ofNullable(draftNameToProgram.get(programName)));
                     }));
+
+    // Copied from ActiveAndDraftQuestions
+    ImmutableSet<String> tombstonedProgramNames =
+      ImmutableSet.copyOf(
+        Sets.union(
+          ImmutableSet.copyOf(draft.getTombstonedProgramNames()),
+          ImmutableSet.copyOf(active.getTombstonedProgramNames())));
+    this.deletionStatusByName =
+      versionedByName.keySet().stream()
+        .collect(
+          ImmutableMap.toImmutableMap(
+            questionName -> questionName,
+            questionName -> {
+              // TODO: Check if applications?
+              return tombstonedProgramNames.contains(questionName)
+                ? DeletionStatus.PENDING_DELETION
+                : DeletionStatus.NOT_DELETABLE;
+            }));
   }
 
   public ImmutableList<ProgramDefinition> getActivePrograms() {
@@ -126,6 +154,11 @@ public final class ActiveAndDraftPrograms {
         .map(this::getMostRecentProgramDefinition)
         .collect(ImmutableList.toImmutableList());
   }
+
+  public DeletionStatus getDeletionStatus(String programName) {
+    return deletionStatusByName.getOrDefault(programName, DeletionStatus.NOT_DELETABLE);
+  }
+
 
   public boolean anyDraft() {
     return draftPrograms.size() > 0;

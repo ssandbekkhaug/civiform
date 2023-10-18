@@ -310,8 +310,19 @@ public final class AdminProgramController extends CiviFormController {
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", id));
     } catch (InvalidUpdateException e) {
+      System.out.println("invalid update via "+ e);
       return badRequest("Failed to archive question.");
     }
-    return redirect(controllers.admin.routes.AdminProgramController.index());
+    return redirect(routes.AdminProgramController.index());
+    /*
+    try {
+      return publishProgram(request, id);
+    } catch (Exception e) { // TODO: Don't catch generic exception
+      System.out.println("exception while publishing: " + e);
+      return badRequest(" some error");
+      //throw new RuntimeException("Program should definitely have been found");
+    }
+
+     */
   }
 }

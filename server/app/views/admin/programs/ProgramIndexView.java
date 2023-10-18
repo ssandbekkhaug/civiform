@@ -28,9 +28,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
+import models.Program;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DeletionStatus;
 import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
@@ -100,9 +102,19 @@ public final class ProgramIndexView extends BaseHtmlView {
             this.buildProgramCardData(
               programs.getActiveProgramDefinition(name),
               programs.getDraftProgramDefinition(name),
+              programs,
               request,
               profile))
         .collect(Collectors.toList());
+
+    /*
+    List<ProgramCardFactory.ProgramCardData> tombstonedProgramsCardData =
+      tombstonedPrograms.stream().map(
+        name ->
+          this.buildTombstonedProgramCardData(name)
+      );
+
+     */
 
     DivTag contentDiv =
         div()
@@ -137,7 +149,17 @@ public final class ProgramIndexView extends BaseHtmlView {
                                         .programTypeThenLastModifiedThenNameComparator())
                                 .map(
                                     cardData ->
-                                        programCardFactory.renderCard(request, cardData)))));
+                                        programCardFactory.renderCard(request, cardData)))),
+              div()
+                .withClasses("flex", "items-center", "space-x-4", "mt-12")
+                .with(h2("Tombstoned")),
+              div()
+                .withClass("mt-6")
+               // .with(
+               //   each(tombstonedProgramsCardData.stream()
+               //     .map( cardData -> programCardFactory.renderCard(request, cardData)))
+              //  )
+            );
 
     HtmlBundle htmlBundle =
         layout
@@ -320,6 +342,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private Pair<ProgramCardFactory.ProgramCardData, Optional<Modal>> buildProgramCardData(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
+      ActiveAndDraftPrograms activeAndDraftPrograms,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
@@ -368,6 +391,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
         Pair<ButtonTag, Optional<Modal>> archiveProgramInfo = renderArchiveProgramLink(activeProgram.get(), request);
         // TODO: Check feature flag
+        // TODO: Should also update "publish all" modal
         activeRowExtraActions.add(archiveProgramInfo.getLeft());
         maybeModal = archiveProgramInfo.getRight();
       }
@@ -382,10 +406,15 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .build());
     }
 
+    boolean isPendingDeletion =
+      draftProgram.isPresent() ? activeAndDraftPrograms.getDeletionStatus(draftProgram.get().adminName()) == DeletionStatus.PENDING_DELETION
+        : false;
+
     return Pair.of(
       ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(activeRow)
         .setDraftProgram(draftRow)
+        .setIsPendingDeletion(isPendingDeletion)
         .build(),
       maybeModal);
   }
@@ -533,11 +562,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ProgramDefinition program,
     Http.Request request) {
 
-    request.id();
-
-    routes.AdminProgramController.archive(program.id()).url();
-
-    Optional<Modal> modal = makeArchiveConfirmationModal(program.adminName());
+    Optional<Modal> modal = makeArchiveConfirmationModal(program, request);
     ButtonTag button =
       makeSvgTextButton("Archive", Icons.ARCHIVE)
         .withId(modal.get().getTriggerButtonId())
@@ -567,14 +592,27 @@ public final class ProgramIndexView extends BaseHtmlView {
     //return button;
   }
 
-  private Optional<Modal> makeArchiveConfirmationModal(String programTitle) {
+  private Optional<Modal> makeArchiveConfirmationModal(ProgramDefinition program, Http.Request request) {
+    String archiveLink = routes.AdminProgramController.archive(program.id()).url();
+    ButtonTag archiveButton =
+      toLinkButtonForPost(
+        makeSvgTextButton("Archive", Icons.ARCHIVE)
+          .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON),
+        archiveLink,
+        request);
+
     DivTag content = div().withClasses("flex-row", "space-y-6")
-      .with(p("Some fake text here"));
+      .with(p("Some fake text here"))
+      .with(archiveButton);
+
+
+
     return Optional.of(
       Modal.builder()
         .setModalId(Modal.randomModalId())
         .setContent(content)
-        .setModalTitle(String.format("Are you sure you want to archive %s?", programTitle))
+        // TODO: Admin name isn't correct (it has -s, isn't the display name)
+        .setModalTitle(String.format("Are you sure you want to archive %s?", program.adminName()))
         .setWidth(Modal.Width.HALF)
         .build());
   }
