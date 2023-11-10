@@ -6,8 +6,13 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+<<<<<<< Updated upstream
 import models.Account;
 import models.ApiKey;
+=======
+import models.AccountModel;
+import models.ApiKeyModel;
+>>>>>>> Stashed changes
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -38,9 +43,9 @@ public class ResourceCreator {
    * Create an API key with subnet of "8.8.8.8/32,1.1.1.1/32" and an expiration date one year in the
    * future.
    */
-  public ApiKey createActiveApiKey(String name, String keyId, String keySecret) {
-    ApiKey apiKey =
-        new ApiKey()
+  public ApiKeyModel createActiveApiKey(String name, String keyId, String keySecret) {
+    ApiKeyModel apiKey =
+        new ApiKeyModel()
             .setName(name)
             .setKeyId(keyId)
             .setExpiration(Instant.now().plusSeconds(SECONDS_PER_YEAR))

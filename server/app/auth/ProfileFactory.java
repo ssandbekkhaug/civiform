@@ -6,8 +6,13 @@ import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
+<<<<<<< Updated upstream
 import models.Account;
 import models.ApiKey;
+=======
+import models.AccountModel;
+import models.ApiKeyModel;
+>>>>>>> Stashed changes
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -84,8 +89,8 @@ public final class ProfileFactory {
    * Retrieves an API key. API keys are effectively the profile (i.e. record of identity and
    * authority) for API requests.
    */
-  public ApiKey retrieveApiKey(String keyId) {
-    Optional<ApiKey> apiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
+  public ApiKeyModel retrieveApiKey(String keyId) {
+    Optional<ApiKeyModel> apiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
 
     return apiKey.orElseThrow(() -> new AccountNonexistentException("API key does not exist"));
   }

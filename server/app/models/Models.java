@@ -9,8 +9,13 @@ import io.ebean.Database;
 public final class Models {
   private static final ImmutableList<Class<? extends BaseModel>> MODELS =
       ImmutableList.of(
+<<<<<<< Updated upstream
           Account.class,
           ApiKey.class,
+=======
+          AccountModel.class,
+          ApiKeyModel.class,
+>>>>>>> Stashed changes
           Applicant.class,
           Application.class,
           ApplicationEvent.class,
