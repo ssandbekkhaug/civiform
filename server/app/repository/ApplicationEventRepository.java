@@ -8,7 +8,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Application;
+import models.ApplicationModel;
 import models.ApplicationEvent;
 
 /**
@@ -46,7 +46,7 @@ public final class ApplicationEventRepository {
   }
 
   /**
-   * Returns all {@link ApplicationEvent} records for the {@link Application} with id {@code
+   * Returns all {@link ApplicationEvent} records for the {@link ApplicationModel} with id {@code
    * applicationId} synchronously.
    */
   public ImmutableList<ApplicationEvent> getEventsOrderByCreateTimeDesc(Long applicationId) {

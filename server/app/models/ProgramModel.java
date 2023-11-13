@@ -107,13 +107,13 @@ public class ProgramModel extends BaseModel {
   @Constraints.Required private Boolean eligibilityIsGating;
 
   @ManyToMany(mappedBy = "programs")
-  private List<Version> versions;
+  private List<VersionModel> versions;
 
   @OneToMany(mappedBy = "program")
   @OrderBy("id desc")
-  private List<Application> applications;
+  private List<ApplicationModel> applications;
 
-  public ImmutableList<Version> getVersions() {
+  public ImmutableList<VersionModel> getVersions() {
     return ImmutableList.copyOf(versions);
   }
 
@@ -135,11 +135,11 @@ public class ProgramModel extends BaseModel {
     this(definition, Optional.empty());
   }
 
-  public ProgramModel(ProgramDefinition definition, Version version) {
+  public ProgramModel(ProgramDefinition definition, VersionModel version) {
     this(definition, Optional.of(version));
   }
 
-  private ProgramModel(ProgramDefinition definition, Optional<Version> version) {
+  private ProgramModel(ProgramDefinition definition, Optional<VersionModel> version) {
     this.programDefinition = definition;
     this.id = definition.id();
     this.name = definition.adminName();
@@ -174,7 +174,7 @@ public class ProgramModel extends BaseModel {
       String externalLink,
       String displayMode,
       ImmutableList<BlockDefinition> blockDefinitions,
-      Version associatedVersion,
+      VersionModel associatedVersion,
       ProgramType programType,
       ProgramAcls programAcls) {
     this.name = adminName;
@@ -279,7 +279,7 @@ public class ProgramModel extends BaseModel {
    * obsolete if the applicant submitted the application more than once, but are included since all
    * submitted applications should be shown.
    */
-  public ImmutableList<Application> getSubmittedApplications() {
+  public ImmutableList<ApplicationModel> getSubmittedApplications() {
     return applications.stream()
         .filter(
             application ->

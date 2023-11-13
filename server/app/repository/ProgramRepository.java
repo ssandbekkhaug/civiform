@@ -21,10 +21,10 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.AccountModel;
-import models.Application;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.Version;
+import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
@@ -104,7 +104,7 @@ public final class ProgramRepository {
     return program;
   }
 
-  public ImmutableList<Version> getVersionsForProgram(ProgramModel program) {
+  public ImmutableList<VersionModel> getVersionsForProgram(ProgramModel program) {
     if (settingsManifest.getProgramCacheEnabled()) {
       return versionsByProgramCache.getOrElseUpdate(
           String.valueOf(program.id), () -> program.getVersions());
@@ -128,7 +128,7 @@ public final class ProgramRepository {
    * DRAFT if necessary.
    */
   public ProgramModel createOrUpdateDraft(ProgramModel existingProgram) {
-    Version draftVersion = versionRepository.get().getDraftVersionOrCreate();
+    VersionModel draftVersion = versionRepository.get().getDraftVersionOrCreate();
     Optional<ProgramModel> existingDraftOpt =
         versionRepository
             .get()
@@ -216,7 +216,7 @@ public final class ProgramRepository {
   /** Get the current draft program with the provided slug. */
   public ProgramModel getDraftProgramFromSlug(String slug) throws ProgramDraftNotFoundException {
 
-    Optional<Version> version = versionRepository.get().getDraftVersion();
+    Optional<VersionModel> version = versionRepository.get().getDraftVersion();
 
     if (version.isEmpty()) {
       throw new ProgramDraftNotFoundException(slug);
@@ -290,14 +290,14 @@ public final class ProgramRepository {
    * the caller may pass either a {@link IdentifierBasedPaginationSpec <Long>} or {@link
    * PageNumberBasedPaginationSpec} using play's {@link F.Either} wrapper.
    */
-  public PaginationResult<Application> getApplicationsForAllProgramVersions(
+  public PaginationResult<ApplicationModel> getApplicationsForAllProgramVersions(
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
       SubmittedApplicationFilter filters) {
-    ExpressionList<Application> query =
+    ExpressionList<ApplicationModel> query =
         database
-            .find(Application.class)
+            .find(ApplicationModel.class)
             .setLabel("Application.findList")
             .setProfileLocation(
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
@@ -347,7 +347,7 @@ public final class ProgramRepository {
       }
     }
 
-    PagedList<Application> pagedQuery;
+    PagedList<ApplicationModel> pagedQuery;
 
     if (paginationSpecEither.left.isPresent()) {
       IdentifierBasedPaginationSpec<Long> paginationSpec = paginationSpecEither.left.get();
@@ -368,7 +368,7 @@ public final class ProgramRepository {
 
     pagedQuery.loadCount();
 
-    return new PaginationResult<Application>(
+    return new PaginationResult<ApplicationModel>(
         pagedQuery.hasNext(),
         pagedQuery.getTotalPageCount(),
         pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));

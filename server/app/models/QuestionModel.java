@@ -52,7 +52,7 @@ import services.question.types.QuestionType;
  */
 @Entity
 @Table(name = "questions")
-public class Question extends BaseModel {
+public class QuestionModel extends BaseModel {
 
   private QuestionDefinition questionDefinition;
 
@@ -107,18 +107,18 @@ public class Question extends BaseModel {
 
   @ManyToMany
   @JoinTable(name = "versions_questions")
-  private List<Version> versions;
+  private List<VersionModel> versions;
 
-  public Question(QuestionDefinition questionDefinition) {
+  public QuestionModel(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
     setFieldsFromQuestionDefinition(questionDefinition);
   }
 
-  public ImmutableList<Version> getVersions() {
+  public ImmutableList<VersionModel> getVersions() {
     return ImmutableList.copyOf(versions);
   }
 
-  public Question addVersion(Version version) {
+  public QuestionModel addVersion(VersionModel version) {
     versions.add(version);
     return this;
   }
@@ -167,7 +167,7 @@ public class Question extends BaseModel {
    *
    * <p>The majority of questions should have `questionText` and not `legacyQuestionText`.
    */
-  private Question setQuestionText(QuestionDefinitionBuilder builder) {
+  private QuestionModel setQuestionText(QuestionDefinitionBuilder builder) {
     LocalizedStrings textToSet =
         Optional.ofNullable(questionText)
             .orElseGet(() -> LocalizedStrings.create(legacyQuestionText));
@@ -181,7 +181,7 @@ public class Question extends BaseModel {
    *
    * <p>The majority of questions should have `questionHelpText` and not `legacyQuestionHelpText`.
    */
-  private Question setQuestionHelpText(QuestionDefinitionBuilder builder) {
+  private QuestionModel setQuestionHelpText(QuestionDefinitionBuilder builder) {
     LocalizedStrings textToSet =
         Optional.ofNullable(questionHelpText)
             .orElseGet(
@@ -195,7 +195,7 @@ public class Question extends BaseModel {
    *
    * <p>The majority of questions should have a `questionOptions` and not `legacyQuestionOptions`.
    */
-  private Question setQuestionOptions(QuestionDefinitionBuilder builder)
+  private QuestionModel setQuestionOptions(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (!QuestionType.of(questionType).isMultiOptionType()) {
       return this;
@@ -228,7 +228,7 @@ public class Question extends BaseModel {
     return this;
   }
 
-  private Question setEnumeratorEntityType(QuestionDefinitionBuilder builder)
+  private QuestionModel setEnumeratorEntityType(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(enumeratorEntityType);
@@ -240,7 +240,7 @@ public class Question extends BaseModel {
     return checkNotNull(questionDefinition);
   }
 
-  private Question setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
+  private QuestionModel setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
     if (questionDefinition.isPersisted()) {
       id = questionDefinition.getId();
     }
@@ -276,7 +276,7 @@ public class Question extends BaseModel {
     return this;
   }
 
-  public boolean removeVersion(Version draftVersion) {
+  public boolean removeVersion(VersionModel draftVersion) {
     return this.versions.remove(draftVersion);
   }
 

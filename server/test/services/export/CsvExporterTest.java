@@ -8,7 +8,7 @@ import com.typesafe.config.ConfigFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-import models.Question;
+import models.QuestionModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -104,7 +104,7 @@ public class CsvExporterTest extends AbstractExporterTest {
         CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
     String lastNameHeader =
         CsvExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
-    Question phoneQuestion =
+    QuestionModel phoneQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.PHONE);
     PhoneQuestion phoneQuestion1 =
         getApplicantQuestion(phoneQuestion.getQuestionDefinition()).createPhoneQuestion();
@@ -120,7 +120,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     assertThat(records.get(1).get("Status")).isEqualTo(STATUS_VALUE);
     assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");
     // Check list for multiselect in default locale
-    Question checkboxQuestion =
+    QuestionModel checkboxQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
     MultiSelectQuestion multiSelectApplicantQuestion =
         getApplicantQuestion(checkboxQuestion.getQuestionDefinition()).createMultiSelectQuestion();
@@ -128,7 +128,7 @@ public class CsvExporterTest extends AbstractExporterTest {
         CsvExporterService.pathToHeader(multiSelectApplicantQuestion.getSelectionPath());
     assertThat(records.get(1).get(multiSelectHeader)).isEqualTo("[toaster, pepper_grinder]");
     // Check link for uploaded file
-    Question fileuploadQuestion =
+    QuestionModel fileuploadQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.FILEUPLOAD);
     FileUploadQuestion fileuploadApplicantQuestion =
         getApplicantQuestion(fileuploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
