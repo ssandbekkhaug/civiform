@@ -98,6 +98,7 @@ export class ToastController {
 
     // Add the content string.
     const contentContainer = document.createElement('span')
+    contentContainer.classList.add('max-w-full', 'pr-8', 'break-words')
     contentContainer.textContent = message.content
     toastMessage.appendChild(contentContainer)
 
