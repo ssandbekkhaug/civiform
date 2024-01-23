@@ -73,7 +73,7 @@ public final class ApplicationRepository {
 
   private ApplicationModel submitApplicationInternal(
       ApplicantModel applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
-    database.beginTransaction();
+    database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
       List<ApplicationModel> oldApplications =
           database
@@ -233,7 +233,7 @@ public final class ApplicationRepository {
 
   private ApplicationModel createOrUpdateDraftApplicationInternal(
       ApplicantModel applicant, ProgramModel program) {
-    database.beginTransaction();
+    database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
       Optional<ApplicationModel> existingDraft =
           database
