@@ -373,7 +373,10 @@ validation.phoneMustBeLocalToCountry=The phone you have provided does not belong
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
 
+validation.dayRequired=Day is required
 validation.invalidDateFormat=Please enter a date in the correct format
+validation.monthRequired=Month is required
+validation.yearRequired=Year is required
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
