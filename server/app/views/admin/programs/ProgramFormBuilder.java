@@ -183,13 +183,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getRadioTag(),
         showTiSelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
         FieldWithLabel.radio()
-        .setId("program-display-mode-disabled")
-        .setFieldName("displayMode")
-        .setAriaRequired(true)
-        .setLabelText("Disabled")
-        .setValue(DisplayMode.DISABLED.getValue())
-        .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
-        .getRadioTag(),
+            .setId("program-display-mode-disabled")
+            .setFieldName("displayMode")
+            .setAriaRequired(true)
+            .setLabelText("Disabled")
+            .setValue(DisplayMode.DISABLED.getValue())
+            .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
+            .getRadioTag(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")

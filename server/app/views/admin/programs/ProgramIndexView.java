@@ -391,7 +391,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       case PUBLIC:
         visibilityText = " (Publicly visible) ";
         break;
-    case DISABLED:
+      case DISABLED:
         visibilityText = " (Program will be disabled) ";
       default:
         break;

@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
-
 import models.DisplayMode;
 import models.VersionModel;
 import repository.VersionRepository;

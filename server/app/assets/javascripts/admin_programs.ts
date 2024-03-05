@@ -54,10 +54,14 @@ class AdminPrograms {
   }
   // Could factor this out into a helper method
   static attachEventListenersToHideEditTiInDisabledMode() {
-    addEventListenerToElements('#program-display-mode-disabled', 'click', () => {
-      const tiSelect = <HTMLInputElement>document.querySelector('#TiList')
-      if (!tiSelect.hidden) tiSelect.hidden = true
-    })
+    addEventListenerToElements(
+      '#program-display-mode-disabled',
+      'click',
+      () => {
+        const tiSelect = <HTMLInputElement>document.querySelector('#TiList')
+        if (!tiSelect.hidden) tiSelect.hidden = true
+      },
+    )
   }
   static attachCopyProgramLinkListeners() {
     const withCopyableProgramLink = Array.from(

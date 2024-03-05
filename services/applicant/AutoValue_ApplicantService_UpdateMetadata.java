@@ -9,9 +9,7 @@ final class AutoValue_ApplicantService_UpdateMetadata extends ApplicantService.U
 
   private final long updatedAt;
 
-  AutoValue_ApplicantService_UpdateMetadata(
-      long programId,
-      long updatedAt) {
+  AutoValue_ApplicantService_UpdateMetadata(long programId, long updatedAt) {
     this.programId = programId;
     this.updatedAt = updatedAt;
   }
@@ -28,10 +26,7 @@ final class AutoValue_ApplicantService_UpdateMetadata extends ApplicantService.U
 
   @Override
   public String toString() {
-    return "UpdateMetadata{"
-        + "programId=" + programId + ", "
-        + "updatedAt=" + updatedAt
-        + "}";
+    return "UpdateMetadata{" + "programId=" + programId + ", " + "updatedAt=" + updatedAt + "}";
   }
 
   @Override
@@ -41,8 +36,7 @@ final class AutoValue_ApplicantService_UpdateMetadata extends ApplicantService.U
     }
     if (o instanceof ApplicantService.UpdateMetadata) {
       ApplicantService.UpdateMetadata that = (ApplicantService.UpdateMetadata) o;
-      return this.programId == that.programId()
-          && this.updatedAt == that.updatedAt();
+      return this.programId == that.programId() && this.updatedAt == that.updatedAt();
     }
     return false;
   }
@@ -56,5 +50,4 @@ final class AutoValue_ApplicantService_UpdateMetadata extends ApplicantService.U
     h$ ^= (int) ((updatedAt >>> 32) ^ updatedAt);
     return h$;
   }
-
 }

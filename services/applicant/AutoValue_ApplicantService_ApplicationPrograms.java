@@ -5,7 +5,8 @@ import java.util.Optional;
 import javax.annotation.processing.Generated;
 
 @Generated("com.google.auto.value.processor.AutoValueProcessor")
-final class AutoValue_ApplicantService_ApplicationPrograms extends ApplicantService.ApplicationPrograms {
+final class AutoValue_ApplicantService_ApplicationPrograms
+    extends ApplicantService.ApplicationPrograms {
 
   private final Optional<ApplicantService.ApplicantProgramData> commonIntakeForm;
 
@@ -49,10 +50,17 @@ final class AutoValue_ApplicantService_ApplicationPrograms extends ApplicantServ
   @Override
   public String toString() {
     return "ApplicationPrograms{"
-        + "commonIntakeForm=" + commonIntakeForm + ", "
-        + "inProgress=" + inProgress + ", "
-        + "submitted=" + submitted + ", "
-        + "unapplied=" + unapplied
+        + "commonIntakeForm="
+        + commonIntakeForm
+        + ", "
+        + "inProgress="
+        + inProgress
+        + ", "
+        + "submitted="
+        + submitted
+        + ", "
+        + "unapplied="
+        + unapplied
         + "}";
   }
 
@@ -90,42 +98,49 @@ final class AutoValue_ApplicantService_ApplicationPrograms extends ApplicantServ
     private ImmutableList<ApplicantService.ApplicantProgramData> inProgress;
     private ImmutableList<ApplicantService.ApplicantProgramData> submitted;
     private ImmutableList<ApplicantService.ApplicantProgramData> unapplied;
-    Builder() {
-    }
+
+    Builder() {}
+
     @Override
-    ApplicantService.ApplicationPrograms.Builder setCommonIntakeForm(ApplicantService.ApplicantProgramData commonIntakeForm) {
+    ApplicantService.ApplicationPrograms.Builder setCommonIntakeForm(
+        ApplicantService.ApplicantProgramData commonIntakeForm) {
       this.commonIntakeForm = Optional.of(commonIntakeForm);
       return this;
     }
+
     @Override
-    ApplicantService.ApplicationPrograms.Builder setInProgress(ImmutableList<ApplicantService.ApplicantProgramData> inProgress) {
+    ApplicantService.ApplicationPrograms.Builder setInProgress(
+        ImmutableList<ApplicantService.ApplicantProgramData> inProgress) {
       if (inProgress == null) {
         throw new NullPointerException("Null inProgress");
       }
       this.inProgress = inProgress;
       return this;
     }
+
     @Override
-    ApplicantService.ApplicationPrograms.Builder setSubmitted(ImmutableList<ApplicantService.ApplicantProgramData> submitted) {
+    ApplicantService.ApplicationPrograms.Builder setSubmitted(
+        ImmutableList<ApplicantService.ApplicantProgramData> submitted) {
       if (submitted == null) {
         throw new NullPointerException("Null submitted");
       }
       this.submitted = submitted;
       return this;
     }
+
     @Override
-    ApplicantService.ApplicationPrograms.Builder setUnapplied(ImmutableList<ApplicantService.ApplicantProgramData> unapplied) {
+    ApplicantService.ApplicationPrograms.Builder setUnapplied(
+        ImmutableList<ApplicantService.ApplicantProgramData> unapplied) {
       if (unapplied == null) {
         throw new NullPointerException("Null unapplied");
       }
       this.unapplied = unapplied;
       return this;
     }
+
     @Override
     ApplicantService.ApplicationPrograms build() {
-      if (this.inProgress == null
-          || this.submitted == null
-          || this.unapplied == null) {
+      if (this.inProgress == null || this.submitted == null || this.unapplied == null) {
         StringBuilder missing = new StringBuilder();
         if (this.inProgress == null) {
           missing.append(" inProgress");
@@ -139,11 +154,7 @@ final class AutoValue_ApplicantService_ApplicationPrograms extends ApplicantServ
         throw new IllegalStateException("Missing required properties:" + missing);
       }
       return new AutoValue_ApplicantService_ApplicationPrograms(
-          this.commonIntakeForm,
-          this.inProgress,
-          this.submitted,
-          this.unapplied);
+          this.commonIntakeForm, this.inProgress, this.submitted, this.unapplied);
     }
   }
-
 }
