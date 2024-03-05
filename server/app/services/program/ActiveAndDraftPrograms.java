@@ -9,6 +9,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
+
+import models.DisplayMode;
 import models.VersionModel;
 import repository.VersionRepository;
 
@@ -58,6 +60,7 @@ public final class ActiveAndDraftPrograms {
                     service.isPresent()
                         ? getFullProgramDefinition(service.get(), program.id)
                         : program.getProgramDefinition())
+            .filter(program -> program.displayMode() != DisplayMode.DISABLED)
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
