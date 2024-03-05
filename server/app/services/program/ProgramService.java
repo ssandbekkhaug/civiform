@@ -132,6 +132,15 @@ public final class ProgramService {
     return ActiveAndDraftPrograms.buildFromCurrentVersionsUnsynced(versionRepository);
   }
 
+  /** Get disabled programs */
+  public ImmutableList<ProgramDefinition> getDisabledPrograms() {
+    VersionModel active = versionRepository.getActiveVersion();
+    ImmutableList<ProgramDefinition> programs = versionRepository.getProgramsForVersion(checkNotNull(active)).stream().map(program -> program.getProgramDefinition()).collect(ImmutableList.toImmutableList());
+    // Is there an issue with getting all the Program Definitions? Is it better to pass in the service like we do with ActiveAndDraftPrograms?
+    return programs.stream().filter(program -> program.displayMode() == DisplayMode.DISABLED).collect(ImmutableList.toImmutableList());
+    
+  }
+
   /*
    * Looks at the most recent version of each program and returns the program marked as the
    * common intake form if it exists. The most recent version may be in the draft or active stage.

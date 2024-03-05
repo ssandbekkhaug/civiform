@@ -30,6 +30,9 @@ POST    /admin/programs/:programId/publish                      controllers.admi
 POST    /admin/programs/:programId/update/:editStatus     controllers.admin.AdminProgramController.update(request: Request, programId: Long, editStatus: String)
 POST    /admin/programs/:programId/setEligibilityIsGating       controllers.admin.AdminProgramController.setEligibilityIsGating(request: Request, programId: Long)
 
+# A controller for viewing and managing disabled programs
+GET     /admin/disabled-programs                                controllers.admin.AdminDisabledProgramsController.index(request: Request)
+
 # Routes for a CiviForm admin to manage program admins for a given program.
 GET     /admin/programs/:programId/admins/edit    controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)
 POST    /admin/programs/:programId/admins/delete  controllers.admin.ProgramAdminManagementController.delete(request: Request, programId: Long)
