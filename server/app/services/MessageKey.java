@@ -131,6 +131,7 @@ public enum MessageKey {
   ERROR_NOT_FOUND_DESCRIPTION_LINK("error.notFoundDescriptionLink"),
   DATE_VALIDATION_DAY_REQUIRED("validation.dayRequired"),
   DATE_VALIDATION_INVALID_DATE_FORMAT("validation.invalidDateFormat"),
+  DATE_VALIDATION_INVALID_DAY("validation.invalidDay"),
   DATE_VALIDATION_MONTH_REQUIRED("validation.monthRequired"),
   DATE_VALIDATION_YEAR_REQUIRED("validation.yearRequired"),
   DAY_LABEL("label.day"),
