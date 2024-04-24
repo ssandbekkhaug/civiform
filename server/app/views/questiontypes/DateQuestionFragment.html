@@ -19,7 +19,7 @@
     ></div>
 
     <!-- Hidden input to delete the old single date value. -->
-    <input hidden th:name="${dateQuestion.getDatePath()}" value="" />
+    <input text th:id="${dateQuestion.getDatePath()}" th:name="${dateQuestion.getDatePath()}" value="" class="border-2 border-black" />
     <div class="usa-memorable-date">
       <!-- Month Input -->
       <div
@@ -158,4 +158,29 @@
       </div>
     </div>
   </fieldset>
+<!--  <script type="text/javascript">-->
+<!--    document.addEventListener("DOMContentLoaded", (event) => {-->
+<!--      const dateQuestionEls = document.querySelectorAll('.cf-question-date');-->
+
+<!--      for (let i = 0; i < dateQuestionEls.length; i++) {-->
+<!--        const controls = dateQuestionEls[i].querySelectorAll('select.usa-select, input.usa-input')-->
+<!--          for (let j = 0; j < controls.length; j++) {-->
+<!--            controls[j].addEventListener('change', onChange);-->
+<!--          }-->
+<!--      }-->
+<!--    });-->
+
+<!--    function onChange(event) {-->
+<!--      const dateQuestionEl = event.target.closest('.cf-question-date');-->
+
+<!--      const monthEl = dateQuestionEl.querySelector('.cf-date-month select.usa-select');-->
+<!--      const dayEl = dateQuestionEl.querySelector('.cf-date-day input.usa-input');-->
+<!--      const yearEl = dateQuestionEl.querySelector('.cf-date-year input.usa-input');-->
+<!--      const date = `${yearEl.value}-${monthEl.value.padStart(2, '0')}-${dayEl.value.padStart(2, '0')}`;-->
+
+<!--      const dateEl = dateQuestionEl.querySelector('input');-->
+<!--      dateEl.value = date;-->
+<!--    }-->
+
+<!--  </script>-->
 </div>

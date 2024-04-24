@@ -13,13 +13,18 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.geo.AddressSuggestionJsonSerializer;
+
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -676,7 +681,25 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 formData ->
                     applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
                 classLoaderExecutionContext.current())
-            .toCompletableFuture();
+//            .thenComposeAsync(
+//                formData -> {
+//                  var z =  new HashMap<>(formData);
+//                  // Assume you have a date question named northstar_date
+//                  var month = z.get("applicant.northstar_date.month");
+//                  var day = z.get("applicant.northstar_date.day");
+//                  var year = z.get("applicant.northstar_date.year");
+//                  if (month != null && day != null && year != null) {
+//                    z.remove("applicant.northstar_date.month");
+//                    z.remove("applicant.northstar_date.day");
+//                    z.remove("applicant.northstar_date.year");
+//                    var date = String.format("%s-%s-%s", year, Strings.padStart(month, 2, '0'), Strings.padStart(day, 2, '0'));
+//                    z.put("applicant.northstar_date.date", date);
+//                  }
+//
+//                  return CompletableFuture.completedFuture(ImmutableMap.copyOf(z));
+//            },
+//            classLoaderExecutionContext.current())
+          .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
             .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
