@@ -36,6 +36,15 @@ public class PredicateValueTest {
   }
 
   @Test
+  public void pairOfDatesValue_encodedProperly() {
+    LocalDate date1 = LocalDate.of(2024, 5, 1);
+    LocalDate date2 = LocalDate.of(2024, 5, 2);
+    PredicateValue value = PredicateValue.pairOfDates(date1, date2);
+
+    assertThat(value.value()).isEqualTo("[1714521600000, 1714608000000]");
+  }
+
+  @Test
   public void toDisplayString_currency() {
     QuestionDefinition currencyDef =
         testQuestionBank.applicantMonthlyIncome().getQuestionDefinition();
@@ -99,6 +108,17 @@ public class PredicateValueTest {
         PredicateValue.listOfStrings(ImmutableList.of("1", "100")); // 100 is not a valid ID
 
     assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, <obsolete>]");
+  }
+
+  @Test
+  public void toDisplayString_pairOfDates() {
+    QuestionDefinition dateDef = testQuestionBank.applicantDate().getQuestionDefinition();
+
+    LocalDate date1 = LocalDate.of(2024, 5, 1);
+    LocalDate date2 = LocalDate.of(2024, 5, 2);
+    PredicateValue value = PredicateValue.pairOfDates(date1, date2);
+
+    assertThat(value.toDisplayString(dateDef)).isEqualTo("2024-05-01 and 2024-05-02");
   }
 
   @Test
