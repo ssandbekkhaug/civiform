@@ -7,6 +7,7 @@ import static play.test.Helpers.fakeRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.DynamicForm;
@@ -52,7 +53,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
   public void testParsePredicateValue_currency() {
     PredicateValue got =
         PredicateGenerator.parsePredicateValue(
-            Scalar.CURRENCY_CENTS, Operator.EQUAL_TO, "100.01", ImmutableList.of());
+            Scalar.CURRENCY_CENTS,
+            Operator.EQUAL_TO,
+            "100.01",
+            Optional.empty(),
+            ImmutableList.of());
 
     assertThat(
             got.toDisplayString(testQuestionBank.applicantMonthlyIncome().getQuestionDefinition()))
@@ -92,7 +97,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
                     .setOperator(Operator.AGE_BETWEEN)
                     .setComparedValue(
                         PredicateGenerator.parsePredicateValue(
-                            Scalar.DATE, Operator.AGE_BETWEEN, "14,18", null))
+                            Scalar.DATE,
+                            Operator.AGE_BETWEEN,
+                            "14,18",
+                            Optional.empty(),
+                            ImmutableList.of()))
                     .build()));
   }
 
@@ -199,7 +208,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
                     .setOperator(Operator.AGE_YOUNGER_THAN)
                     .setComparedValue(
                         PredicateGenerator.parsePredicateValue(
-                            Scalar.DATE, Operator.AGE_YOUNGER_THAN, "10.5", null))
+                            Scalar.DATE,
+                            Operator.AGE_YOUNGER_THAN,
+                            "10.5",
+                            Optional.empty(),
+                            ImmutableList.of()))
                     .build()));
   }
 

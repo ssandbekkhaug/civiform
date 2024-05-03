@@ -102,7 +102,7 @@ class AdminPredicateConfiguration {
             if (input.checked) {
               hasCheckedOption = true
             }
-          } else if (input.value == '') {
+          } else if (!input.disabled && input.value == '') {
             hasValueMissing = true
           }
         })
@@ -265,6 +265,21 @@ class AdminPredicateConfiguration {
     const operatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
+    // show/hide the second value boxes based on the selected operator
+    const oneValueOnly = !(
+      operatorValue === 'BETWEEN' || operatorValue === 'AGE_BETWEEN'
+    )
+    document
+      .querySelector('#predicate-config-value-row-container')!
+      .querySelectorAll(
+        `[data-question-id="${questionId}"] .cf-predicate-value-second-input-container`,
+      )
+      .forEach((div) => {
+        div.classList.toggle('hidden', oneValueOnly)
+        assertNotNull(div.querySelector('input')).disabled = oneValueOnly
+      })
+
+    // configure all input boxes
     document
       .querySelector('#predicate-config-value-row-container')!
       .querySelectorAll(`[data-question-id="${questionId}"] input`)
@@ -326,15 +341,13 @@ class AdminPredicateConfiguration {
       case 'DATE':
         if (
           operatorValue === 'AGE_OLDER_THAN' ||
-          operatorValue === 'AGE_YOUNGER_THAN'
+          operatorValue === 'AGE_YOUNGER_THAN' ||
+          operatorValue === 'AGE_BETWEEN'
         ) {
           // Age-related operators should have number input value
           valueInput.setAttribute('type', 'number')
           // We should allow for decimals to account for month intervals
           valueInput.setAttribute('step', '.01')
-        } else if (operatorValue === 'AGE_BETWEEN') {
-          // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
-          valueInput.setAttribute('type', 'text')
         } else {
           valueInput.setAttribute('type', 'date')
         }

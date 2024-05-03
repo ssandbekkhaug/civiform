@@ -14,6 +14,7 @@ import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
@@ -31,6 +32,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -761,6 +763,14 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     Optional<LeafOperationExpressionNode> maybeLeafOperationNode =
         assertLeafOperationNode(maybeLeafNode);
 
+    Optional<FormattedPredicateValue> formattedValue =
+        maybeLeafOperationNode.map(
+            leafNode ->
+                formatPredicateValue(
+                    leafNode.scalar(), leafNode.operator(), leafNode.comparedValue()));
+    boolean hasOneValue =
+        !formattedValue.flatMap(FormattedPredicateValue::getSecondValue).isPresent();
+
     return valueField
         .withData("question-id", String.valueOf(questionDefinition.getId()))
         .with(
@@ -768,56 +778,133 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .setFieldName(
                     String.format(
                         "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
-                .setValue(
-                    maybeLeafOperationNode.map(
-                        leafNode ->
-                            formatPredicateValue(leafNode.scalar(), leafNode.comparedValue())))
+                .setValue(formattedValue.map(FormattedPredicateValue::getMainValue))
                 .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
-                .getInputTag());
+                .getInputTag())
+        .with(
+            div()
+                .withClasses(
+                    ReferenceClasses.PREDICATE_VALUE_SECOND_INPUT_CONTAINER,
+                    iff(hasOneValue, "hidden"))
+                .with(div("and").withClasses("text-center"))
+                .with(
+                    FieldWithLabel.input()
+                        .setFieldName(
+                            String.format(
+                                "group-%d-question-%d-predicateSecondValue",
+                                groupId, questionDefinition.getId()))
+                        .setValue(formattedValue.flatMap(FormattedPredicateValue::getSecondValue))
+                        .setDisabled(hasOneValue)
+                        .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
+                        .getInputTag()));
   }
 
-  private static String formatPredicateValue(Scalar scalar, PredicateValue predicateValue) {
+  private static class FormattedPredicateValue {
+    String mainValue;
+    Optional<String> secondValue = Optional.empty();
+
+    private FormattedPredicateValue(String mainValue) {
+      this.mainValue = mainValue;
+    }
+
+    private FormattedPredicateValue(String mainValue, String secondValue) {
+      this(mainValue);
+      this.secondValue = Optional.of(secondValue);
+    }
+
+    static FormattedPredicateValue createFromPairValue(String value) {
+      return createFromPairValue(value, Function.identity());
+    }
+
+    static FormattedPredicateValue createFromPairValue(
+        String value, Function<String, String> decoder) {
+      List<String> values = Splitter.on(", ").splitToList(value.substring(1, value.length() - 1));
+      Preconditions.checkState(values.size() == 2);
+      return new FormattedPredicateValue(
+          decoder.apply(values.get(0)), decoder.apply(values.get(1)));
+    }
+
+    String getMainValue() {
+      return mainValue;
+    }
+
+    Optional<String> getSecondValue() {
+      return secondValue;
+    }
+  }
+
+  private static FormattedPredicateValue formatPredicateValue(
+      Scalar scalar, Operator operator, PredicateValue predicateValue) {
     String value = predicateValue.value();
     OperatorRightHandType predicateType = predicateValue.type();
     switch (scalar.toScalarType()) {
       case CURRENCY_CENTS:
-        long storedCents = Long.parseLong(value);
-        long dollars = storedCents / 100;
-        long cents = storedCents % 100;
-        return String.format("%d.%02d", dollars, cents);
+        if (predicateType == OperatorRightHandType.PAIR_OF_LONGS) {
+          return FormattedPredicateValue.createFromPairValue(
+              value, ProgramPredicateConfigureView::formatCurrency);
+        }
+        return new FormattedPredicateValue(formatCurrency(value));
       case DATE:
         if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
-          return formatListOfLongs(value);
+          // Backwards compatibility for the original implementation of the AGE_BETWEEN operator
+          // (https://github.com/civiform/civiform/pull/4428)
+          // which stored the values as a LIST_OF_LONGS with exactly two values
+          if (operator == Operator.AGE_BETWEEN) {
+            return FormattedPredicateValue.createFromPairValue(value);
+          }
+          return new FormattedPredicateValue(formatListOfLongs(value));
         }
         if (predicateType == OperatorRightHandType.LONG
             || predicateType == OperatorRightHandType.DOUBLE) {
-          return value;
+          return new FormattedPredicateValue(value);
         }
-        return Instant.ofEpochMilli(Long.parseLong(value))
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        if (predicateType == OperatorRightHandType.PAIR_OF_DATES) {
+          return FormattedPredicateValue.createFromPairValue(
+              value, ProgramPredicateConfigureView::formatDate);
+        }
+
+        return new FormattedPredicateValue(formatDate(value));
       case LONG:
         if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
-          return formatListOfLongs(value);
+          return new FormattedPredicateValue(formatListOfLongs(value));
         }
-        return value;
+        if (predicateType == OperatorRightHandType.PAIR_OF_LONGS) {
+          return FormattedPredicateValue.createFromPairValue(value);
+        }
+
+        return new FormattedPredicateValue(value);
       case LIST_OF_STRINGS:
       case STRING:
         if (predicateType == OperatorRightHandType.LIST_OF_STRINGS) {
           // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
-          return Splitter.on(", ")
-              // Remove opening and closing brackets
-              .splitToStream(value.substring(1, value.length() - 1))
-              // Remove quotes
-              .map(item -> item.substring(1, item.length() - 1))
-              // Join to CSV
-              .collect(Collectors.joining(","));
+          return new FormattedPredicateValue(
+              Splitter.on(", ")
+                  // Remove opening and closing brackets
+                  .splitToStream(value.substring(1, value.length() - 1))
+                  // Remove quotes
+                  .map(item -> item.substring(1, item.length() - 1))
+                  // Join to CSV
+                  .collect(Collectors.joining(",")));
         }
-        return predicateValue.valueWithoutSurroundingQuotes();
+
+        return new FormattedPredicateValue(predicateValue.valueWithoutSurroundingQuotes());
       default:
         throw new RuntimeException(String.format("Unknown scalar type: %s", scalar.toScalarType()));
     }
+  }
+
+  private static String formatDate(String value) {
+    return Instant.ofEpochMilli(Long.parseLong(value))
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+  }
+
+  private static String formatCurrency(String value) {
+    long storedCents = Long.parseLong(value);
+    long dollars = storedCents / 100;
+    long cents = storedCents % 100;
+    return String.format("%d.%02d", dollars, cents);
   }
 
   private static String formatListOfLongs(String value) {

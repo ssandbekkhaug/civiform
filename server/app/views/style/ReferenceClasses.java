@@ -42,6 +42,9 @@ public final class ReferenceClasses {
   public static final String PREDICATE_OPERATOR_SELECT = "cf-operator-select";
   public static final String PREDICATE_OPTIONS = "cf-predicate-options";
   public static final String PREDICATE_VALUE_INPUT = "cf-predicate-value-input";
+  public static final String PREDICATE_VALUE_SECOND_INPUT_CONTAINER =
+      "cf-predicate-value-second-input-container";
+  public static final String PREDICATE_VALUE_BETWEEN_AND_TEXT = "cf-predicate-value-and-text";
   public static final String PREDICATE_VALUE_BETWEEN_HELP_TEXT =
       "cf-predicate-value-between-help-text";
   public static final String PREDICATE_VALUE_COMMA_HELP_TEXT = "cf-predicate-value-comma-help-text";

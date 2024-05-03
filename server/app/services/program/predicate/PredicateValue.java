@@ -60,7 +60,7 @@ public abstract class PredicateValue {
   public static PredicateValue pairOfLongs(long value1, long value2) {
     return create(
         ImmutableList.of(String.valueOf(value1), String.valueOf(value2)).toString(),
-        OperatorRightHandType.PAIR_OF_DATES);
+        OperatorRightHandType.PAIR_OF_LONGS);
   }
 
   public static PredicateValue listOfLongs(ImmutableList<Long> value) {
@@ -102,15 +102,17 @@ public abstract class PredicateValue {
    * @param question the question the predicate is applied to.
    */
   public String toDisplayString(QuestionDefinition question) {
-
     /* Special handling of "simple" question types, EG non-multivalued questions. */
 
     // Currency is stored as cents and displayed as dollars/cents with 2 cent digits.
     if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
-      long storedCents = Long.parseLong(value());
-      long dollars = storedCents / 100;
-      long cents = storedCents % 100;
-      return String.format("$%d.%02d", dollars, cents);
+      if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
+        return Splitter.on(", ")
+            .splitToStream(value().substring(1, value().length() - 1))
+            .map(PredicateValue::formatCurrencyString)
+            .collect(Collectors.joining(" and "));
+      }
+      return formatCurrencyString(value());
     }
 
     // Convert to a human-readable date.
@@ -162,6 +164,13 @@ public abstract class PredicateValue {
 
   private static String toEpochMilliString(LocalDate value) {
     return String.valueOf(value.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli());
+  }
+
+  private static String formatCurrencyString(String value) {
+    long storedCents = Long.parseLong(value);
+    long dollars = storedCents / 100;
+    long cents = storedCents % 100;
+    return String.format("$%d.%02d", dollars, cents);
   }
 
   private static String formatDateString(String value) {
