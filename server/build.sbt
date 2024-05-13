@@ -139,44 +139,6 @@ lazy val root = (project in file("."))
         .filter(_ != "true")
         .map(_ =>
           Seq(
-           // Trying with the -J
-            "-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-            "-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-            "-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-            "-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-            "-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-            "-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-            "-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-            "-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-            "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-            "-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-//
-//            // // Trying without the -J
-//            //            "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-//            //            "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-//            //            "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-//            //            "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-//            //            "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-//            //            "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-//            //            "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-//            //            "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-//            //            "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-//            //            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-//
-//
-//            //            // Trying as individual entries
-//            //            "--add-modules", "jdk.compiler",
-//            //            "--add-exports", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-//            //            "--add-exports", "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-//            //            "--add-exports", "jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-//            //            "--add-exports", "jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-//            //            "--add-exports", "jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-//            //            "--add-exports", "jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-//            //            "--add-exports", "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-//            //            "--add-exports", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-//            //            "--add-opens", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-//            //            "--add-opens", "jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-
             "-processorpath", errorproneDependencyFiles,
             // Turn off the AutoValueSubclassLeaked error since the generated
             // code contains it - we can't control that.
@@ -188,61 +150,28 @@ lazy val root = (project in file("."))
 
       defaultCompilerOptions ++ errorProneCompilerOptions
     },
+    javaOptions ++= {
+      val defaultJavaOptions = Seq()
+      val errorProneJavaOptions = Option(System.getenv("DISABLE_ERRORPRONE"))
+            .filter(_ != "true")
+            .map(_ =>
+              Seq(
+                "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+                "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
+              )
+            )
+            .getOrElse(Seq.empty)
 
-
-
-    //    // Trying to pass as flags to java
-    //    javaOptions ++= {
-    //      val defaultJavaOptions = Seq()
-    //
-    //      // Disable errorprone checking if the DISABLE_ERRORPRONE environment variable
-    //      // is set to true
-    //      val errorProneJavaOptions = Option(System.getenv("DISABLE_ERRORPRONE"))
-    //        .filter(_ != "true")
-    //        .map(_ =>
-    //          Seq(
-    //            // // Trying with the -J
-    //            //            "-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-    //            //            "-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-    //            //            "-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-    //            //            "-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-    //            //            "-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-    //            //            "-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-    //            //            "-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-    //            //            "-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-    //            //            "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-    //            //            "-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-    //
-    //            // // Trying without the -J
-    //            //            "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-    //            //            "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-    //            //            "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-    //            //            "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-    //            //            "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-    //            //            "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-    //            //            "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-    //            //            "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-    //            //            "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-    //            //            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-    //
-    //          // // Trying as individual entries
-    //          //            "--add-modules", "jdk.compiler",
-    //          //            "--add-exports", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-    //          //            "--add-exports", "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-    //          //            "--add-exports", "jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-    //          //            "--add-exports", "jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-    //          //            "--add-exports", "jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-    //          //            "--add-exports", "jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-    //          //            "--add-exports", "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-    //          //            "--add-exports", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-    //          //            "--add-opens", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-    //          //            "--add-opens", "jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-    //          )
-    //        )
-    //        .getOrElse(Seq.empty)
-    //
-    //      defaultJavaOptions ++ errorProneJavaOptions
-    //    },
+            defaultJavaOptions ++ errorProneJavaOptions
+    },
 
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >30% files have changed, to help avoid infinate
