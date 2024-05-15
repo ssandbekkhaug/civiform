@@ -284,14 +284,15 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
     DivTag helpTextRow = div().withClasses("flex", "predicate-help-text-row");
     valueRowContainer.with(helpTextRow);
-    DivTag spacerText = div().withClasses("w-16");
+    DivTag spacerText = div().withClasses("w-16", "shrink-0");
 
     int columnNumber = 0;
     for (QuestionDefinition questionDefinition : questionDefinitions) {
       helpTextRow
+          .condWith(columnNumber++ != 0, spacerText)
           .with(
               div()
-                  .withClasses("w-48")
+                  .withClasses("w-48", "shrink-0")
                   .with(
                       div()
                           .withClasses(
@@ -314,8 +315,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                               "text-xs",
                               "pb-4",
                               BaseStyles.FORM_LABEL_TEXT_COLOR)
-                          .withData("question-id", String.valueOf(questionDefinition.getId()))))
-          .condWith(columnNumber++ != 1, spacerText);
+                          .withData("question-id", String.valueOf(questionDefinition.getId()))));
     }
 
     if (maybeExistingPredicate.isPresent()) {
@@ -443,7 +443,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                         .withData("question-id", String.valueOf(qd.getId())),
                     createScalarDropdown(qd, Optional.of(leafNode)),
                     createOperatorDropdown(qd, Optional.of(leafNode)))
-                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
+                .withClasses(COLUMN_WIDTH, "shrink-0", iff(columnNumber++ != 1, "ml-16")));
       }
     } else {
       int columnNumber = 1;
@@ -462,7 +462,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                         .withData("question-id", String.valueOf(qd.getId())),
                     createScalarDropdown(qd, /* maybeLeafNode= */ Optional.empty()),
                     createOperatorDropdown(qd, /* maybeLeafNode= */ Optional.empty()))
-                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
+                .withClasses(COLUMN_WIDTH, "shrink-0", iff(columnNumber++ != 1, "ml-16")));
       }
     }
 

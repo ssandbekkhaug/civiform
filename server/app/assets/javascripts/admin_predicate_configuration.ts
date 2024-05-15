@@ -147,6 +147,7 @@ class AdminPredicateConfiguration {
     this.configurePredicateValueInputs(
       selectedScalarType,
       selectedScalarValue,
+      null,
       questionId,
     )
   }
@@ -197,26 +198,6 @@ class AdminPredicateConfiguration {
       operatorDropdownContainer.dataset.questionId,
     )
 
-    // Each value input has its own help text
-    const csvHelpTexts = document.querySelectorAll(
-      `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-comma-help-text`,
-    )
-    csvHelpTexts.forEach((div: Element) =>
-      div.classList.toggle(
-        'hidden',
-        selectedOperatorValue !== 'IN' && selectedOperatorValue !== 'NOT_IN',
-      ),
-    )
-
-    // Each value input has its own help text
-    const betweenHelpTexts = document.querySelectorAll(
-      `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-between-help-text`,
-    )
-    betweenHelpTexts.forEach((div: Element) =>
-      div.classList.toggle('hidden', selectedOperatorValue !== 'AGE_BETWEEN'),
-    )
-
-    // Update the value field to reflect the new Operator selection.
     const scalarDropdown = this.getElementWithQuestionId(
       '.cf-scalar-select',
       questionId,
@@ -230,6 +211,7 @@ class AdminPredicateConfiguration {
     this.configurePredicateValueInputs(
       selectedScalarType,
       selectedScalarValue,
+      selectedOperatorValue,
       questionId,
     )
   }
@@ -244,8 +226,34 @@ class AdminPredicateConfiguration {
   configurePredicateValueInputs(
     selectedScalarType: string | null,
     selectedScalarValue: string | null,
+    selectedOperator: string | null,
     questionId: string,
   ) {
+    const isMultiSelect =
+      selectedScalarValue === 'SELECTION' ||
+      selectedScalarValue === 'SELECTIONS' ||
+      selectedScalarValue === 'SERVICE_AREA'
+
+    // Each value input has its own help text
+    const csvHelpTexts = document.querySelectorAll(
+      `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-comma-help-text`,
+    )
+    csvHelpTexts.forEach((div: Element) =>
+      div.classList.toggle(
+        'hidden',
+        (selectedOperator !== 'IN' && selectedOperator !== 'NOT_IN') ||
+          isMultiSelect,
+      ),
+    )
+
+    // Each value input has its own help text
+    const betweenHelpTexts = document.querySelectorAll(
+      `#predicate-config-value-row-container [data-question-id="${questionId}"].cf-predicate-value-between-help-text`,
+    )
+    betweenHelpTexts.forEach((div: Element) =>
+      div.classList.toggle('hidden', selectedOperator !== 'AGE_BETWEEN'),
+    )
+
     // If the scalar is from a multi-option or address question, there is not an input box
     // for the 'Value' field (there's a set of checkboxes instead), so return immediately.
     if (
