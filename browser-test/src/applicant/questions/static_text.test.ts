@@ -85,6 +85,15 @@ test.describe(
 
         await verifyMarkdownHtml(page)
       })
+
+      test('has no accessiblity violations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await validateAccessibility(page)
+      })
     })
 
     async function setUpForSingleQuestion(

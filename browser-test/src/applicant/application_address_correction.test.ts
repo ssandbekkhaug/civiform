@@ -1157,5 +1157,9 @@ test.describe('address correction', () => {
         )
       })
     })
+
+    test('validate accessibility', async ({page}) => {
+      await validateAccessibility(page)
+    })
   })
 })

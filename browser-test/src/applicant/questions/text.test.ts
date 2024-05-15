@@ -57,36 +57,45 @@ test.describe(
         await applicantQuestions.submitFromReviewPage()
       })
 
-      test(
-        'validate screenshot with north star flag enabled',
+      test.describe(
+        'with north star flag enabled',
         {tag: ['@northstar']},
-        async ({page, applicantQuestions}) => {
-          await enableFeatureFlag(page, 'north_star_applicant_ui')
-          await applicantQuestions.applyProgram(programName)
+        () => {
+          test.beforeEach(async ({page}) => {
+            await enableFeatureFlag(page, 'north_star_applicant_ui')
+          })
 
-          await validateScreenshot(
+          test('validate screenshot', async ({page, applicantQuestions}) => {
+            await applicantQuestions.applyProgram(programName)
+
+            await test.step('Screenshot without errors', async () => {
+              await validateScreenshot(
+                page,
+                'text-north-star',
+                /* fullPage= */ true,
+                /* mobileScreenshot= */ true,
+              )
+            })
+
+            await test.step('Screenshot with errors', async () => {
+              await applicantQuestions.clickContinue()
+              await validateScreenshot(
+                page,
+                'text-errors-north-star',
+                /* fullPage= */ true,
+                /* mobileScreenshot= */ true,
+              )
+            })
+          })
+
+          test('has no accessiblity violations', async ({
             page,
-            'text-north-star',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        },
-      )
+            applicantQuestions,
+          }) => {
+            await applicantQuestions.applyProgram(programName)
 
-      test(
-        'validate screenshot with errors with north star flag enabled',
-        {tag: ['@northstar']},
-        async ({page, applicantQuestions}) => {
-          await enableFeatureFlag(page, 'north_star_applicant_ui')
-          await applicantQuestions.applyProgram(programName)
-          await applicantQuestions.clickContinue()
-
-          await validateScreenshot(
-            page,
-            'text-errors-north-star',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
+            await validateAccessibility(page)
+          })
         },
       )
 

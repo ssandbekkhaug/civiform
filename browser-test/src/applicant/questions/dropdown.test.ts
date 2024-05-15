@@ -179,23 +179,23 @@ test.describe(
       })
     })
 
-    test.describe('single dropdown question with north star flag enabled', () => {
-      const programName = 'Test program for single dropdown'
+    test.describe(
+      'single dropdown question with north star flag enabled',
+      {tag: ['@northstar']},
+      () => {
+        const programName = 'Test program for single dropdown'
 
-      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await setUpSingleDropdownQuestion(
-          programName,
-          page,
-          adminQuestions,
-          adminPrograms,
-        )
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-      })
+        test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+          await setUpSingleDropdownQuestion(
+            programName,
+            page,
+            adminQuestions,
+            adminPrograms,
+          )
+          await enableFeatureFlag(page, 'north_star_applicant_ui')
+        })
 
-      test(
-        'validate screenshot',
-        {tag: ['@northstar']},
-        async ({page, applicantQuestions}) => {
+        test('validate screenshot', async ({page, applicantQuestions}) => {
           await applicantQuestions.applyProgram(programName)
 
           await test.step('Screenshot without errors', async () => {
@@ -216,9 +216,18 @@ test.describe(
               /* mobileScreenshot= */ true,
             )
           })
-        },
-      )
-    })
+        })
+
+        test('has no accessiblity violations', async ({
+          page,
+          applicantQuestions,
+        }) => {
+          await applicantQuestions.applyProgram(programName)
+
+          await validateAccessibility(page)
+        })
+      },
+    )
 
     async function setUpSingleDropdownQuestion(
       programName: string,
