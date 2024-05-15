@@ -33,15 +33,19 @@ public class JsonPathPredicateGeneratorTest {
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
   private QuestionDefinition question;
   private QuestionDefinition dateQuestion;
+  private QuestionDefinition numberQuestion;
   private JsonPathPredicateGenerator generator;
 
   @Before
   public void setupGenerator() {
     question = questionBank.applicantAddress().getQuestionDefinition();
     dateQuestion = questionBank.applicantDate().getQuestionDefinition();
+    numberQuestion = questionBank.applicantJugglingNumber().getQuestionDefinition();
     generator =
         new JsonPathPredicateGenerator(
-            new DateConverter(clock), ImmutableList.of(question, dateQuestion), Optional.empty());
+            new DateConverter(clock),
+            ImmutableList.of(question, dateQuestion, numberQuestion),
+            Optional.empty());
   }
 
   @Test
@@ -151,13 +155,35 @@ public class JsonPathPredicateGeneratorTest {
   }
 
   @Test
-  public void fromLeafNode_generatesCorrectStringForBetweenAgeValue() throws Exception {
+  public void fromLeafNode_generatesCorrectStringForBetweenAgeListValue() throws Exception {
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
             dateQuestion.getId(),
             Scalar.DATE,
             Operator.AGE_BETWEEN,
             PredicateValue.listOfLongs(ImmutableList.of(1L, 100L)));
+
+    JsonPathPredicate predicate =
+        JsonPathPredicate.create(
+            "$.applicant.applicant_birth_date[?(1861920000000 >= @.date && -1262304000000 <="
+                + " @.date)]");
+
+    assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
+
+    ApplicantData data = new ApplicantData();
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2022-01-01");
+
+    assertThat(data.evalPredicate(predicate)).isTrue();
+  }
+
+  @Test
+  public void fromLeafNode_generatesCorrectStringForBetweenAgePairValue() throws Exception {
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            dateQuestion.getId(),
+            Scalar.DATE,
+            Operator.AGE_BETWEEN,
+            PredicateValue.pairOfLongs(1, 100));
 
     JsonPathPredicate predicate =
         JsonPathPredicate.create(
@@ -190,6 +216,27 @@ public class JsonPathPredicateGeneratorTest {
 
     ApplicantData data = new ApplicantData();
     data.putDate(Path.create("applicant.applicant_birth_date.date"), "2022-01-01");
+
+    assertThat(data.evalPredicate(predicate)).isTrue();
+  }
+
+  @Test
+  public void fromLeafNode_generatesCorrectStringForBetweenNumber() throws Exception {
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            numberQuestion.getId(),
+            Scalar.NUMBER,
+            Operator.BETWEEN,
+            PredicateValue.pairOfLongs(0, 20));
+
+    JsonPathPredicate predicate =
+        JsonPathPredicate.create(
+            "$.applicant.number_of_items_applicant_can_juggle[?(0 <= @.number && @.number <= 20)]");
+
+    assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
+
+    ApplicantData data = new ApplicantData();
+    data.putLong(Path.create("applicant.number_of_items_applicant_can_juggle.number"), "5");
 
     assertThat(data.evalPredicate(predicate)).isTrue();
   }
