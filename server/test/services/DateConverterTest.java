@@ -45,6 +45,13 @@ public class DateConverterTest {
   }
 
   @Test
+  public void parseIso8601DateToEndOfLocalDateInstant_DateTimeParseExceptionIsGenerated() {
+    String inputDate = "abcd";
+    assertThatThrownBy(() -> dateConverterUTC.parseIso8601DateToEndOfLocalDateInstant(inputDate))
+        .isInstanceOf(DateTimeParseException.class);
+  }
+
+  @Test
   public void parseIso8601DateToLocalDate_DateTimeParseExpectionIsGenerated() {
     String inputDate = "2012-20-20";
     assertThatThrownBy(() -> dateConverterUTC.parseIso8601DateToLocalDate(inputDate))

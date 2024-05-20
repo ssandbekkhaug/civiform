@@ -612,13 +612,10 @@ test.describe(
         expect(csvContentPhoneSearch).not.toContain('threeFirst')
       })
 
-      // TODO: ssandbekkhaug fix
-      const formattedToday = formatDateInUserTimezone(new Date())
-
       await test.step('Search by date and validate expected applications are returned', async () => {
         await adminPrograms.filterProgramApplications({
-          fromDate: formattedToday,
-          untilDate: formattedToday,
+          fromDate: formattedToday(),
+          untilDate: formattedToday(),
         })
         const csvContentPhoneSearch = await adminPrograms.getCsv(applyFilters)
         expect(csvContentPhoneSearch).toContain('oneFirst')
@@ -629,10 +626,12 @@ test.describe(
   },
 )
 
-function formatDateInUserTimezone(date: Date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0') // Month is 0-indexed
-  const day = String(date.getDate()).padStart(2, '0')
+// Returns today's date with the format of "yyyy-mm-dd". Ignores time zones.
+function formattedToday() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0') // Month is 0-indexed
+  const day = String(today.getDate()).padStart(2, '0')
 
   return `${year}-${month}-${day}`
 }
