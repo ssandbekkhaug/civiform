@@ -149,6 +149,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
   }
 
+  // ssandbekkhaug: how to check that the correct number of applications was returned?
+
   @Test
   public void updateStatus_programNotFound() {
     ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
@@ -661,3 +663,5 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     }
   }
 }
+
+// ssandbekkhaug should I use this file?
